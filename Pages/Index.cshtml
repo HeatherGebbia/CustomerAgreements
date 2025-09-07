@@ -1,10 +1,68 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Customer Agreements";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Customer Agreements</h1>
+    <p>Add link to fill out an agreement</p>    
+    <p>Add links to Questionnaire Manager, Notification Manager and List Manager</p>
+    <p>Do I want to use tabs here? Also, decide if I want to use a page layout.</p>
 </div>
+
+<div class="jumbotron p-3">
+    <form class="form-group">
+        <label asp-for="SelectedCompanyName" class="control-label">
+            Companies:
+        </label>
+        <select class="p-2" asp-for="SelectedCompanyName" asp-items="Model.CompanyNames" onchange="this.form.submit();">
+            <option value="">All</option>
+        </select>
+
+        <label asp-for="SearchString" class="control-label">
+            Name:
+        </label>
+        <input class="p-2" type="text" asp-for="SearchString" />
+        <input type="submit" value="Search" class="btn btn-primary btn-sm" />
+        <label asp-for="SortField" class="control-label">
+            Sort by:
+        </label>
+        <select class="p-2" asp-for="SortField" onchange="this.form.submit();">
+            <option value="ContactName">
+                Contact Name
+            </option>
+            <option value="CompanyName">
+                Company Name
+            </option>
+        </select>
+
+    </form>
+</div>
+
+@if (Model.Customers.Count == 0)
+{
+    <p><em>No customers found.</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Contact Name</th>
+                <th>Company Name</th>
+                <th>Email Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model.Customers)
+            {
+                <tr>
+                    <td>@c.ContactName</td>
+                    <td>@c.CompanyName</td>
+                    <td>@c.EmailAddress</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,57 @@
+﻿@page
+@model CustomerAgreements.Pages.Questionnaires.IndexModel
+@{
+    ViewData["Title"] = "Questionnaires";
+}
+
+<div class="jumbotron p-3">
+    <div class="d-flex align-items-center">
+<h2>Questionnaires</h2>
+<a class="btn btn-primary btn-sm" asp-page="./Create">
+    Create
+</a>
+</div>
+</div>
+
+
+@if (Model.Questionnaires.Count == 0)
+{
+    <p><em>No questionnaires found.</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>QuestionnaireID</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var q in Model.Questionnaires)
+            {
+                <tr>
+                    <td>@q.QuestionnaireID</td>
+                    <td>@q.QuestionnaireName</td>
+                    <td>@q.Status</td>
+                    <td>@q.CreatedDate.ToShortDateString()</td>
+                    <td>
+                        <form method="post" class="p-2 btn-group" style="flex:0 0 25%" role="group">
+                            <a class="btn btn-primary btn-sm" asp-page="./Detail" asp-route-id="@q.QuestionnaireID">
+                                Preview
+                            </a>
+                            <a class="btn btn-primary btn-sm" asp-page="./Edit" asp-route-id="@q.QuestionnaireID">
+                                Edit
+                            </a>
+                            <input type="submit" value="Delete" class="btn btn-danger btn-sm" />
+                            <input type="hidden" name="ID" value="@q.QuestionnaireID" />
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

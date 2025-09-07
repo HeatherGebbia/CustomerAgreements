@@ -20,3 +20,24 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.sub-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 1rem;
+}
+
+.sub-nav a {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    color: #333;
+}
+
+.sub-nav .active a {
+    background-color: #0078d7; /* blue highlight */
+    color: white;
+    font-weight: bold;
+}

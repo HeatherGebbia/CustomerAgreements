@@ -1,0 +1,38 @@
+﻿
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    var currentPage = ViewContext.RouteData.Values["Page"]?.ToString() ?? "";
+}
+
+<ul class="navbar-nav flex-grow-1">
+    <li class="nav-item">
+        <a class="nav-link text-dark @(currentPage == "/Index" ? "active fw-bold" : "")"
+           asp-page="/Index">Home</a>
+    </li>
+
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-dark @(currentPage.StartsWith("/Questionnaires") ? "active fw-bold" : "")"
+           href="#" id="questionnairesDropdown" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false">
+            Questionnaires
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="questionnairesDropdown">
+            <li>
+                <a class="dropdown-item @(currentPage == "/Questionnaires/Index" ? "active" : "")"
+                   asp-page="/Questionnaires/Index">List</a>
+            </li>
+            <li>
+                <a class="dropdown-item @(currentPage == "/Questionnaires/Create" ? "active" : "")"
+                   asp-page="/Questionnaires/Create">Create</a>
+            </li>
+            <li>
+                <a class="dropdown-item @(currentPage == "/Questionnaires/Edit" ? "active" : "")"
+                   asp-page="/Questionnaires/Edit">Edit</a>
+            </li>
+            <li>
+                <a class="dropdown-item @(currentPage == "/Questionnaires/Details" ? "active" : "")"
+                   asp-page="/Questionnaires/Details">Details</a>
+            </li>
+        </ul>
+    </li>
+</ul>

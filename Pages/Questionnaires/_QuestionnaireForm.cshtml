@@ -1,0 +1,17 @@
+﻿@model CustomerAgreements.Models.Questionnaire
+
+<div class="form-group d-flex">
+    <label asp-for="QuestionnaireName" class="p-2 text-right" style="flex:0 0 15%"></label>
+    <input asp-for="QuestionnaireName" class="form-control" style="flex:1 0 auto;width:auto" />
+    <span asp-validation-for="QuestionnaireName" class="text-danger"></span>
+</div>
+<div class="form-group d-flex">
+    <label asp-for="Status" class="p-2 text-right" style="flex:0 0 15%"></label>
+    <input asp-for="Status" class="form-control" style="flex:1 0 auto;width:auto" />
+    <span asp-validation-for="Status" class="text-danger"></span>    
+    @* <select asp-for="Status" asp-items="Model.List" class="form-control"></select> *@
+</div>
+<div class="d-flex flex-row-reverse">
+    <input type="submit" value="Save" class="btn btn-primary btn-sm" />
+</div>
+<input asp-for="QuestionnaireID" type="hidden" />
