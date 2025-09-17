@@ -7,10 +7,14 @@
 <div class="jumbotron p-3">
     <div class="d-flex align-items-center">
 <h2>Questionnaires</h2>
-<a class="btn btn-primary btn-sm" asp-page="./Create">
-    Create
-</a>
 </div>
+    <div class="d-flex align-items-center">
+        <p>
+            <a class="btn btn-primary btn-sm" asp-page="./Create">
+                Create new Questionnaire
+            </a>
+        </p>
+    </div>
 </div>
 
 
@@ -39,15 +43,13 @@ else
                     <td>@q.Status</td>
                     <td>@q.CreatedDate.ToShortDateString()</td>
                     <td>
-                        <form method="post" class="p-2 btn-group" style="flex:0 0 25%" role="group">
+                        <form method="post" class="p-2 btn-group" style="display:inline" role="group">
                             <a class="btn btn-primary btn-sm" asp-page="./Detail" asp-route-id="@q.QuestionnaireID">
                                 Preview
                             </a>
                             <a class="btn btn-primary btn-sm" asp-page="./Edit" asp-route-id="@q.QuestionnaireID">
                                 Edit
                             </a>
-                            <input type="submit" value="Delete" class="btn btn-danger btn-sm" />
-                            <input type="hidden" name="ID" value="@q.QuestionnaireID" />
                         </form>
                     </td>
                 </tr>
@@ -55,3 +57,4 @@ else
         </tbody>
     </table>
 }
+

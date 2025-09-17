@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CustomerAgreements.Validation;
 
 namespace CustomerAgreements.Models
 {
@@ -10,11 +11,14 @@ namespace CustomerAgreements.Models
     {
         [Key]
         public int SectionID { get; set; }
+
+        [Required]
         public int QuestionnaireID { get; set; }
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(100)]
         [Column("Section")]
+        [Display(Name = "Section")]
         public string Text { get; set; } = string.Empty;
 
         [Display(Name = "Sort Order")]
@@ -23,9 +27,12 @@ namespace CustomerAgreements.Models
         [Display(Name = "Include Instructions")]
         public bool IncludeInstructions { get; set; }
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(4000)]
-        public string Instructions { get; set; } = string.Empty;
+        [RequiredIfIncludeInstructions(ErrorMessage = "Please provide instructions when Include Instructions = Yes.")]
+        public string? Instructions { get; set; }
+
+        // Navigation property
+        public ICollection<Question>? Questions { get; set; }
     }
 }
 

@@ -23,7 +23,9 @@ namespace CustomerAgreements.Models
         [DisplayFormat(DataFormatString = "{0:MM-dd-yyyy}")]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
-        // Navigation property (EF will use this later when we add Questions)
+        // Navigation property 
         public ICollection<Question>? Questions { get; set; }
+        public ICollection<Section>? Sections { get; set; }
+
     }
 }

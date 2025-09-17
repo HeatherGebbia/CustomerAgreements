@@ -1,0 +1,17 @@
+﻿@page
+@model CustomerAgreements.Pages.Sections.EditModel
+
+@{
+    ViewData["Title"] = "Edit Section";
+}
+
+<h2>Edit Section</h2>
+<form method="post">
+    <partial name="_SectionForm" model="Model.Section" />
+</form>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/sectionForm.js"></script>
+}

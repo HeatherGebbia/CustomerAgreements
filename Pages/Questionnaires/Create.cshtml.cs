@@ -39,7 +39,7 @@ namespace CustomerAgreements.Pages.Questionnaires
             }            
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostSave()
         {
             if (!ModelState.IsValid)
             {

@@ -2,10 +2,11 @@ using CustomerAgreements.Data;
 using CustomerAgreements.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Serilog.Core;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using static System.Collections.Specialized.BitVector32;
 
 namespace CustomerAgreements.Pages.Questionnaires
 {
@@ -22,15 +23,23 @@ namespace CustomerAgreements.Pages.Questionnaires
 
         [BindProperty]
         public Questionnaire Questionnaire { get; set; } = default!;
-        //public SelectList Statuses { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
             try
             {
-                //Statuses = new SelectList(Statuses.Items.Cast<List>().Where(l => l.ListName == "Status"), nameof(List.ListID), nameof(List.ListValue));
-
-                Questionnaire = await _context.Questionnaires.FindAsync(id);
+                Questionnaire = await _context.Questionnaires
+                    .Where(m => m.QuestionnaireID == id)
+                    .Select(q => new Questionnaire
+                    {
+                        QuestionnaireID = q.QuestionnaireID,
+                        QuestionnaireName = q.QuestionnaireName,
+                        Status = q.Status,
+                        Sections = q.Sections
+                            .OrderBy(s => s.SortOrder)
+                            .ToList()
+                    })
+                    .FirstOrDefaultAsync();
 
                 if (Questionnaire == null)
                 {
@@ -47,10 +56,10 @@ namespace CustomerAgreements.Pages.Questionnaires
                     DateTime.UtcNow);
                 return Page();
             }
-            
+
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostSaveAsync()
         {
             if (!ModelState.IsValid)
             {
@@ -73,6 +82,36 @@ namespace CustomerAgreements.Pages.Questionnaires
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error updating questionnaire by user {User}. {ex.Message}",
+                    0,
+                    User.Identity?.Name ?? "Anonymous",
+                    DateTime.UtcNow);
+                return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteSectionAsync(int sectionId, int id)
+        {
+
+            try
+            {
+                var section = await _context.Sections.FindAsync(sectionId);
+
+                if (section != null)
+                {
+                    _context.Sections.Remove(section);
+                    await _context.SaveChangesAsync();
+                }
+
+                _logger.LogInformation($"User {User} deleted section {sectionId}",
+                User.Identity?.Name ?? "Anonymous",
+                sectionId,
+                DateTime.UtcNow);
+
+                return RedirectToPage(new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting section by user {User}. {ex.Message}",
                     0,
                     User.Identity?.Name ?? "Anonymous",
                     DateTime.UtcNow);

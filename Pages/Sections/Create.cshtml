@@ -1,0 +1,16 @@
+﻿@page
+@model CustomerAgreements.Pages.Sections.CreateModel
+
+@{
+    ViewData["Title"] = "Create New Section";
+}
+
+<h2>Create Section</h2>
+<form method="post">
+    <partial name="_SectionForm" model="Model.Section" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/sectionForm.js"></script>
+}

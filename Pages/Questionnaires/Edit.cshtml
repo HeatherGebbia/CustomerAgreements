@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{id:int}"
 @model CustomerAgreements.Pages.Questionnaires.EditModel
 @{
     ViewData["Title"] = "Edit Questionnaire";
@@ -8,6 +8,51 @@
 <form method="post">    
     <partial name="_QuestionnaireForm" model="Model.Questionnaire" /> 
 </form>
+
+<h3>Sections</h3>
+<p>
+    <a asp-page="/Sections/Create" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID" class="btn btn-sm btn-primary">
+        Add Section
+    </a>
+</p>
+
+@if (Model.Questionnaire.Sections != null && Model.Questionnaire.Sections.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Section</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var s in Model.Questionnaire.Sections)
+        {
+            <tr>
+                <td>@s.Text</td>
+                <td>
+                    <a asp-page="/Sections/Edit" asp-route-id="@s.SectionID" class="btn btn-sm btn-primary">Edit</a>
+                        <form method="post" asp-page-handler="DeleteSection"
+                              asp-route-sectionId="@s.SectionID"
+                              style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Are you sure you want to delete this section?');">
+                                Delete
+                            </button>
+                        </form>
+
+
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No sections yet.</p>
+}
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

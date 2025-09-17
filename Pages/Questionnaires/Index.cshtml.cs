@@ -26,43 +26,6 @@ namespace CustomerAgreements.Pages.Questionnaires
             Questionnaires = await _context.Questionnaires.ToListAsync();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
-        {
-            try
-            {
-                if (id.HasValue == false)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    //sample code from training to find and delete
-                    Questionnaire Questionnaire = await _context.Questionnaires.FindAsync(id);
-
-                    if (Questionnaire != null)
-                    {
-                        _context.Questionnaires.Remove(Questionnaire);
-                    }
-
-                    await _context.SaveChangesAsync();
-
-                    _logger.LogInformation($"User {User} deleted questionnaire {id}",
-                    User.Identity?.Name ?? "Anonymous",
-                    id,
-                    DateTime.UtcNow);
-
-                    return RedirectToPage("./Index");
-                }                
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deleting questionnaire {id} by user {User}.  {ex.Message}",
-                    id,
-                    User.Identity?.Name ?? "Anonymous",
-                    DateTime.UtcNow);
-                return Page();
-            }
-
-        }
+        
     }
 }
