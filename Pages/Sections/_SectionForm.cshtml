@@ -27,13 +27,12 @@
     <span asp-validation-for="Instructions" class="text-danger"></span>
 </div>
 <br />
-<div class="d-flex flex-row-reverse">
-    <a asp-page="/Questionnaires/Edit" asp-route-id="@Model.QuestionnaireID" class="btn btn-secondary">
+<div class="d-flex flex-row">
+    <button type="submit" asp-page-handler="Save" class="btn btn-primary btn-sm">Save</button>
+    <span>&nbsp;</span>
+    <a asp-page="/Questionnaires/Edit" asp-route-id="@Model.QuestionnaireID" class="btn btn-secondary btn-sm">
         Cancel
     </a>
-
-    &nbsp;
-    <button type="submit" asp-page-handler="Save" class="btn btn-primary btn-sm">Save</button>
 </div>
 <input asp-for="SectionID" type="hidden" />
 

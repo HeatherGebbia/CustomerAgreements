@@ -9,22 +9,11 @@
     <partial name="_QuestionnaireForm" model="Model.Questionnaire" /> 
 </form>
 
-<h3>Sections</h3>
-<p>
-    <a asp-page="/Sections/Create" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID" class="btn btn-sm btn-primary">
-        Add Section
-    </a>
-</p>
+<span>&nbsp;</span>
 
 @if (Model.Questionnaire.Sections != null && Model.Questionnaire.Sections.Any())
 {
     <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Section</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
         <tbody>
         @foreach (var s in Model.Questionnaire.Sections)
         {
