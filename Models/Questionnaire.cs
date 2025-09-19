@@ -24,8 +24,9 @@ namespace CustomerAgreements.Models
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         // Navigation property 
-        public ICollection<Question>? Questions { get; set; }
-        public ICollection<Section>? Sections { get; set; }
+        public ICollection<Section> Sections { get; set; } = new List<Section>();
+        public ICollection<Question> Questions { get; set; } = new List<Question>();
+
 
     }
 }

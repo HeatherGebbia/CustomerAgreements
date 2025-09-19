@@ -28,7 +28,7 @@ namespace CustomerAgreements.Pages.Questions
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            var question = await _context.Questions.Include(q => q.SectionID).FirstOrDefaultAsync(m => m.QuestionID == id);
+            var question = await _context.Questions.Include(q => q.Section).FirstOrDefaultAsync(m => m.QuestionID == id);
             if (question == null)
             {
                 return NotFound();
@@ -57,7 +57,7 @@ namespace CustomerAgreements.Pages.Questions
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!QuestionExists(Question.ID))
+                if (!QuestionExists(Question.QuestionID))
                 {
                     return NotFound();
                 }
@@ -72,7 +72,7 @@ namespace CustomerAgreements.Pages.Questions
 
         private bool QuestionExists(int id)
         {
-            return _context.Questions.Any(e => e.ID == id);
+            return _context.Questions.Any(e => e.QuestionID == id);
         }
     }
 }

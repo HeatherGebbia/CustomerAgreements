@@ -11,9 +11,12 @@ namespace CustomerAgreements.Models
         [Key]
         public int ID { get; set; }
 
-        public int QuestionID { get; set; }  
+        public int QuestionID { get; set; }
+        public QuestionLibrary QuestionLibrary { get; set; } = default!;
         public int QuestionnaireID { get; set; }
+        public Questionnaire Questionnaire { get; set; } = default!;
         public int SectionID { get; set; }
+        public Section Section { get; set; } = default!;
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(100)]
@@ -44,11 +47,8 @@ namespace CustomerAgreements.Models
         [Display(Name = "Sort Order")]
         public int SortOrder { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;       
 
-        // Navigation property (optional: lets EF link back to parent questionnaire)
-        [ForeignKey("QuestionnaireID")]
-        public Questionnaire? Questionnaire { get; set; }
     }
 }
 

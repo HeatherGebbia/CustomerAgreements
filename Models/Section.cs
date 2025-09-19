@@ -14,6 +14,7 @@ namespace CustomerAgreements.Models
 
         [Required]
         public int QuestionnaireID { get; set; }
+        public Questionnaire Questionnaire { get; set; } = default!;
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(100)]
@@ -32,7 +33,7 @@ namespace CustomerAgreements.Models
         public string? Instructions { get; set; }
 
         // Navigation property
-        public ICollection<Question>? Questions { get; set; }
+        public ICollection<Question> Questions { get; set; } = new List<Question>();
     }
 }
 

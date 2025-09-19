@@ -24,6 +24,9 @@ namespace CustomerAgreements.Pages.Questions
         [BindProperty]
         public Question Question { get; set; } = new Question();
 
+        [BindProperty]
+        public QuestionLibrary QuestionLibrary { get; set; } = new QuestionLibrary();
+
         public IActionResult OnGet(int sectionId, int questionnaireId)
         {
             Question = new Question
@@ -46,22 +49,34 @@ namespace CustomerAgreements.Pages.Questions
 
             try
             {
-                if (!string.IsNullOrWhiteSpace(Question.QuestionTitle))
-                {
-                    Question.QuestionKey = Question.QuestionTitle.Replace(" ", "");
-                }
+                //var lib = new QuestionLibrary
+                //{
+                //    QuestionTitle = Question.QuestionTitle,
+                //    QuestionText = Question.QuestionText,
+                //    QuestionKey = Question.QuestionTitle.Replace(" ", "")
+                //};
 
-                Question.Text = Question.QuestionText;
+                QuestionLibrary = new QuestionLibrary();
+
+                QuestionLibrary.QuestionKey = Question.QuestionTitle.Replace(" ", "");
+                QuestionLibrary.Text = Question.QuestionText;
+
+                _context.QuestionLibrary.Add(QuestionLibrary);
+                await _context.SaveChangesAsync();
+
+                Question.QuestionID = QuestionLibrary.QuestionID;
+                Question.QuestionKey = QuestionLibrary.QuestionKey;
+                Question.Text = QuestionLibrary.Text;
 
                 _context.Questions.Add(Question);
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            _logger.LogInformation($"User {User} created new question",
-                        User.Identity?.Name ?? "Anonymous",
-                        Question.QuestionID,
-                        DateTime.UtcNow);
+                _logger.LogInformation($"User {User} created new question",
+                            User.Identity?.Name ?? "Anonymous",
+                            Question.QuestionID,
+                            DateTime.UtcNow);
 
-            return RedirectToPage("/Questionnaires/Edit", new { id = Question.QuestionnaireID });
+                return RedirectToPage("/Questionnaires/Edit", new { id = Question.QuestionnaireID });
             }
             catch (Exception ex)
             {

@@ -10,20 +10,17 @@ namespace CustomerAgreements.Models
     {
         [Key]
         public int QuestionID { get; set; }
+        public string? QuestionKey { get; set; }
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(100)]
         [Display(Name = "Question Title")]
         public string QuestionTitle { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
-        [MaxLength(100)]
-        [Display(Name = "Question Key")]
-        public string QuestionKey { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Required")]
-        [MaxLength(8000)]
-        public string Question { get; set; } = string.Empty;
+        //[Required(ErrorMessage = "Required")]
+        //[MaxLength(8000)]
+        [Column("Question")] // Keeps mapping to DB column named "Question"
+        public string? Text { get; set; }
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(4000)]
@@ -41,6 +38,9 @@ namespace CustomerAgreements.Models
         [Display(Name = "Sort Order")]
         public int SortOrder { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        // Navigation property
+        public ICollection<Question> Questions { get; set; } = new List<Question>();
     }
 }
 

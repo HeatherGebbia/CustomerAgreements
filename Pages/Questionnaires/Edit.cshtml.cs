@@ -28,19 +28,14 @@ namespace CustomerAgreements.Pages.Questionnaires
         {
             try
             {
-                //Questionnaire = await _context.Questionnaires.Where(m => m.QuestionnaireID == id).Select(q => new Questionnaire 
-                //    {
-                //        QuestionnaireID = q.QuestionnaireID,
-                //        QuestionnaireName = q.QuestionnaireName,
-                //        Status = q.Status,
-                //        Sections = q.Sections.OrderBy(s => s.SortOrder).ToList()
-                //    }).FirstOrDefaultAsync();
-
-                Questionnaire = await _context.Questionnaires.Include(q => q.Sections).ThenInclude(s => s.Questions).FirstOrDefaultAsync(m => m.QuestionnaireID == id);
-
+                Questionnaire = await _context.Questionnaires
+                    .Include(q => q.Sections)
+                        .ThenInclude(s => s.Questions)
+                    .FirstOrDefaultAsync(q => q.QuestionnaireID == id);
 
                 if (Questionnaire == null)
                 {
+                    _logger.LogWarning("Questionnaire {Id} not found for edit", id);
                     return NotFound();
                 }
 
@@ -48,11 +43,8 @@ namespace CustomerAgreements.Pages.Questionnaires
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error loading questionnaire {id} for editing by user {User}. {ex.Message}",
-                    id,
-                    User.Identity?.Name ?? "Anonymous",
-                    DateTime.UtcNow);
-                return Page();
+                _logger.LogError(ex, "Error loading questionnaire {Id} for edit", id);
+                return StatusCode(500, "An error occurred while loading the questionnaire.");
             }
 
         }
@@ -87,7 +79,7 @@ namespace CustomerAgreements.Pages.Questionnaires
             }
         }
 
-        public async Task<IActionResult> OnPostDeleteSectionAsync(int sectionId, int id)
+        public async Task<IActionResult> OnPostDeleteSectionAsync(int sectionId, int questionnaireId)
         {
 
             try
@@ -105,7 +97,7 @@ namespace CustomerAgreements.Pages.Questionnaires
                 sectionId,
                 DateTime.UtcNow);
 
-                return RedirectToPage(new { id });
+                return RedirectToPage(new { questionnaireId });
             }
             catch (Exception ex)
             {
@@ -116,5 +108,42 @@ namespace CustomerAgreements.Pages.Questionnaires
                 return Page();
             }
         }
+
+        public async Task<IActionResult> OnPostDeleteQuestionAsync(int questionId)
+        {
+            try
+            {
+                var question = await _context.Questions
+                    .Include(q => q.Section)
+                    .ThenInclude(s => s.Questionnaire)
+                    .FirstOrDefaultAsync(q => q.QuestionID == questionId);
+
+                if (question == null)
+                {
+                    return NotFound();
+                }
+
+                var questionnaireId = question.Section.QuestionnaireID;
+
+                _context.Questions.Remove(question);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("User {User} deleted question {QuestionId}",
+                    User.Identity?.Name ?? "Anonymous",
+                    questionId);
+
+                return RedirectToPage(new { id = questionnaireId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting question by user {User}: {Message}",
+                    User.Identity?.Name ?? "Anonymous",
+                    ex.Message);
+
+                return Page();
+            }
+        }
+
+
     }
 }
