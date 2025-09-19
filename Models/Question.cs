@@ -20,15 +20,12 @@ namespace CustomerAgreements.Models
         [Display(Name = "Question Title")]
         public string QuestionTitle { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
-        [MaxLength(100)]
-        [Display(Name = "Question Key")]
-        public string QuestionKey { get; set; } = string.Empty;
+        public string? QuestionKey { get; set; }
 
-        [Required(ErrorMessage = "Required")]
-        [MaxLength(8000)]
+        //[Required(ErrorMessage = "Required")]
+        //[MaxLength(8000)]
         [Column("Question")] // Keeps mapping to DB column named "Question"
-        public string Text { get; set; } = string.Empty;
+        public string? Text { get; set; }
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(4000)]

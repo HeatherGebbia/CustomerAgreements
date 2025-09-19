@@ -28,18 +28,16 @@ namespace CustomerAgreements.Pages.Questionnaires
         {
             try
             {
-                Questionnaire = await _context.Questionnaires
-                    .Where(m => m.QuestionnaireID == id)
-                    .Select(q => new Questionnaire
-                    {
-                        QuestionnaireID = q.QuestionnaireID,
-                        QuestionnaireName = q.QuestionnaireName,
-                        Status = q.Status,
-                        Sections = q.Sections
-                            .OrderBy(s => s.SortOrder)
-                            .ToList()
-                    })
-                    .FirstOrDefaultAsync();
+                //Questionnaire = await _context.Questionnaires.Where(m => m.QuestionnaireID == id).Select(q => new Questionnaire 
+                //    {
+                //        QuestionnaireID = q.QuestionnaireID,
+                //        QuestionnaireName = q.QuestionnaireName,
+                //        Status = q.Status,
+                //        Sections = q.Sections.OrderBy(s => s.SortOrder).ToList()
+                //    }).FirstOrDefaultAsync();
+
+                Questionnaire = await _context.Questionnaires.Include(q => q.Sections).ThenInclude(s => s.Questions).FirstOrDefaultAsync(m => m.QuestionnaireID == id);
+
 
                 if (Questionnaire == null)
                 {

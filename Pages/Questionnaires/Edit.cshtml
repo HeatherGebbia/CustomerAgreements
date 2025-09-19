@@ -13,7 +13,7 @@
 
 @if (Model.Questionnaire.Sections != null && Model.Questionnaire.Sections.Any())
 {
-    <table class="table table-striped">
+    <table class="table table-secondary">
         <tbody>
         @foreach (var s in Model.Questionnaire.Sections)
         {
@@ -21,6 +21,7 @@
                 <td>@s.Text</td>
                 <td>
                     <a asp-page="/Sections/Edit" asp-route-id="@s.SectionID" class="btn btn-sm btn-primary">Edit</a>
+                        <a asp-page="/Questions/Create" asp-route-sectionId="@s.SectionID" asp-route-questionnaireId="@s.QuestionnaireID" class="btn btn-sm btn-primary">Add Question</a>
                         <form method="post" asp-page-handler="DeleteSection"
                               asp-route-sectionId="@s.SectionID"
                               style="display:inline">

@@ -1,0 +1,16 @@
+﻿@page
+@model CustomerAgreements.Pages.Questions.CreateModel
+
+@{
+    ViewData["Title"] = "Create New Question";
+}
+
+<h1>Create Question</h1>
+
+<form method="post">
+    <partial name="_QuestionForm" model="Model.Question" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
