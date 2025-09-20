@@ -49,24 +49,24 @@ namespace CustomerAgreements.Pages.Questions
 
             try
             {
-                //var lib = new QuestionLibrary
-                //{
-                //    QuestionTitle = Question.QuestionTitle,
-                //    QuestionText = Question.QuestionText,
-                //    QuestionKey = Question.QuestionTitle.Replace(" ", "")
-                //};
+                var library = new QuestionLibrary
+                {
+                    QuestionTitle = Question.QuestionTitle,
+                    QuestionText = Question.QuestionText,
+                    Text = Question.QuestionText,
+                    QuestionKey = Question.QuestionTitle.Replace(" ", ""),
+                    AnswerType = Question.AnswerType,
+                    IsRequired = Question.IsRequired,
+                    SortOrder = Question.SortOrder
+                };
 
-                QuestionLibrary = new QuestionLibrary();
-
-                QuestionLibrary.QuestionKey = Question.QuestionTitle.Replace(" ", "");
-                QuestionLibrary.Text = Question.QuestionText;
-
-                _context.QuestionLibrary.Add(QuestionLibrary);
+                _context.QuestionLibrary.Add(library);
                 await _context.SaveChangesAsync();
 
-                Question.QuestionID = QuestionLibrary.QuestionID;
-                Question.QuestionKey = QuestionLibrary.QuestionKey;
-                Question.Text = QuestionLibrary.Text;
+                Question.QuestionID = library.QuestionID;
+                Question.QuestionKey = library.QuestionKey;
+                Question.Text = library.Text;
+                
 
                 _context.Questions.Add(Question);
                 await _context.SaveChangesAsync();
