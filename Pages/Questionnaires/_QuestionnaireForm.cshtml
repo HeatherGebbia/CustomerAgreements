@@ -16,18 +16,17 @@
         <label for="Archived">Archived</label>
     </div>
 </div>
-<div class="d-flex flex-row">   
+<div class="d-flex flex-row">
     <button type="submit" asp-page-handler="Save" class="btn btn-primary btn-sm">Save</button>
     <span>&nbsp;</span>
-    @if (Model.QuestionnaireID > 0)
+    @if (Model != null && Model.QuestionnaireID > 0)
     {
         <a asp-page="/Sections/Create" asp-route-questionnaireId="@Model.QuestionnaireID" class="btn btn-primary btn-sm">
             Add Section
         </a>
         <span>&nbsp;</span>
-    }    
-    <a class="btn btn-secondary btn-sm" asp-page="./Index">
-        Cancel
-    </a>
+    }
+    <a class="btn btn-secondary btn-sm" asp-page="./Index">Cancel</a>
 </div>
+
 <input asp-for="QuestionnaireID" type="hidden" />

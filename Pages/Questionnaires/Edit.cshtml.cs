@@ -116,7 +116,7 @@ namespace CustomerAgreements.Pages.Questionnaires
                 var question = await _context.Questions
                     .Include(q => q.Section)
                     .ThenInclude(s => s.Questionnaire)
-                    .FirstOrDefaultAsync(q => q.QuestionID == questionId);
+                    .FirstOrDefaultAsync(q => q.ID == questionId);
 
                 if (question == null)
                 {

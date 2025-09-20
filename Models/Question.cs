@@ -12,11 +12,12 @@ namespace CustomerAgreements.Models
         public int ID { get; set; }
 
         public int QuestionID { get; set; }
-        public QuestionLibrary QuestionLibrary { get; set; } = default!;
+        [ForeignKey("QuestionID")]
+        public QuestionLibrary? QuestionLibrary { get; set; }
         public int QuestionnaireID { get; set; }
-        public Questionnaire Questionnaire { get; set; } = default!;
+        public Questionnaire? Questionnaire { get; set; }
         public int SectionID { get; set; }
-        public Section Section { get; set; } = default!;
+        public Section? Section { get; set; }
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(100)]

@@ -27,20 +27,22 @@ namespace CustomerAgreements.Pages.Questions
         public Question Question { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int id)
-        {
-            var question = await _context.Questions.Include(q => q.Section).FirstOrDefaultAsync(m => m.QuestionID == id);
-            if (question == null)
+        {           
+            Question = await _context.Questions
+            .Include(q => q.Section)
+            .ThenInclude(s => s.Questionnaire)
+            .FirstOrDefaultAsync(q => q.ID == id);
+
+            if (Question == null)
             {
                 return NotFound();
             }
-            Question = question;
-            ViewData["SectionID"] = new SelectList(_context.Sections, "SectionID", "Text");
-
+            
             ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions();
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostSaveAsync(int id)
         {
             if (!ModelState.IsValid)
             {
@@ -48,31 +50,35 @@ namespace CustomerAgreements.Pages.Questions
                 return Page();
             }
 
-            _context.Attach(Question).State = EntityState.Modified;
-
             try
             {
-                Question.Text = Question.QuestionText;
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!QuestionExists(Question.QuestionID))
+                var existingQuestion = await _context.Questions
+                .Include(q => q.Section)
+                .FirstOrDefaultAsync(q => q.ID == id);
+
+                if (existingQuestion == null)
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                existingQuestion.QuestionTitle = Question.QuestionTitle;
+                existingQuestion.QuestionText = Question.QuestionText;
+                existingQuestion.AnswerType = Question.AnswerType;
+                existingQuestion.IsRequired = Question.IsRequired;
+                existingQuestion.SortOrder = Question.SortOrder;
+                existingQuestion.Text = existingQuestion.QuestionText;
+                await _context.SaveChangesAsync();
+
+                return RedirectToPage("/Questionnaires/Edit", new { id = existingQuestion.  QuestionnaireID });
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving question by user {User}: {Message}",
+                    User.Identity?.Name ?? "Anonymous",
+                    ex.Message);
 
-            return RedirectToPage("/Questionnaires/Edit", new { id = Question.QuestionnaireID });
-        }
-
-        private bool QuestionExists(int id)
-        {
-            return _context.Questions.Any(e => e.QuestionID == id);
+                return Page();
+            }            
         }
     }
 }

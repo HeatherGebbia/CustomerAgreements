@@ -14,7 +14,7 @@ namespace CustomerAgreements.Models
 
         [Required]
         public int QuestionnaireID { get; set; }
-        public Questionnaire Questionnaire { get; set; } = default!;
+        public Questionnaire? Questionnaire { get; set; }
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(100)]
