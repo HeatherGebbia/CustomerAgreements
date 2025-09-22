@@ -109,21 +109,22 @@ namespace CustomerAgreements.Pages.Questionnaires
             }
         }
 
-        public async Task<IActionResult> OnPostDeleteQuestionAsync(int questionId)
+        public async Task<IActionResult> OnPostDeleteQuestionAsync(int questionId, int questionnaireId)
         {
             try
             {
                 var question = await _context.Questions
                     .Include(q => q.Section)
-                    .ThenInclude(s => s.Questionnaire)
-                    .FirstOrDefaultAsync(q => q.ID == questionId);
+                    .ThenInclude(q => q.Questionnaire)
+                    .FirstOrDefaultAsync(q => q.ID == questionId
+                               && q.QuestionnaireID == questionnaireId);
 
                 if (question == null)
                 {
                     return NotFound();
                 }
 
-                var questionnaireId = question.Section.QuestionnaireID;
+                //var questionnaireId = question.Section.QuestionnaireID;
 
                 _context.Questions.Remove(question);
                 await _context.SaveChangesAsync();

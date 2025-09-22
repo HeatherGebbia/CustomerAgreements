@@ -48,7 +48,10 @@ namespace CustomerAgreements.Models
         [Display(Name = "Sort Order")]
         public int SortOrder { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;       
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        // Navigation property 
+        public ICollection<QuestionList> QuestionLists { get; set; } = new List<QuestionList>();
 
     }
 }

@@ -32,7 +32,8 @@ namespace CustomerAgreements.Pages.Questions
             Question = new Question
             {
                 SectionID = sectionId,
-                QuestionnaireID = questionnaireId
+                QuestionnaireID = questionnaireId,
+                QuestionLists = new List<QuestionList>()
             };
 
             ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions();

@@ -8,13 +8,13 @@ namespace CustomerAgreements.Helpers
         {
             return new List<SelectListItem>
             {
-                new SelectListItem { Value = "TextBox", Text = "Textbox" },
-                new SelectListItem { Value = "MultiTextBox", Text = "Multi-line Textbox" },
-                new SelectListItem { Value = "RadioButton", Text = "Radio Button List" },
-                new SelectListItem { Value = "CheckBox", Text = "Checkbox List" },
-                new SelectListItem { Value = "DropDown", Text = "Drop Down List" },
+                new SelectListItem { Value = "Single-line Textbox", Text = "Textbox" },
+                new SelectListItem { Value = "Multi-line Textbox", Text = "Multi-line Textbox" },
+                new SelectListItem { Value = "Radio Button List", Text = "Radio Button List" },
+                new SelectListItem { Value = "Checkbox List", Text = "Checkbox List" },
+                new SelectListItem { Value = "Drop Down List", Text = "Drop Down List" },
                 new SelectListItem { Value = "Date", Text = "Date" },
-                new SelectListItem { Value = "SingleCheckBox", Text = "Single Checkbox" }
+                new SelectListItem { Value = "Single Checkbox", Text = "Single Checkbox" }
             };
         }
     }

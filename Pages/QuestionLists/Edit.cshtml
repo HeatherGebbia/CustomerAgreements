@@ -1,0 +1,17 @@
+﻿@page "{id:int}/{questionId:int}/{questionnaireId:int}"
+@model CustomerAgreements.Pages.QuestionLists.EditModel
+
+@{
+    ViewData["Title"] = "Edit List Item";
+}
+
+<h1>Edit List Item</h1>
+
+<form method="post">
+    <partial name="_QuestionListForm" model="Model.QuestionList" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/questionListForm.js"></script>
+}

@@ -1,0 +1,16 @@
+﻿@page
+@model CustomerAgreements.Pages.QuestionLists.CreateModel
+
+@{
+    ViewData["Title"] = "Create List Item";
+}
+
+<h1>Create List Item</h1>
+<form method="post">
+    <partial name="_QuestionListForm" model="Model.QuestionList" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/questionListForm.js"></script>
+}

@@ -43,6 +43,13 @@ namespace CustomerAgreements.Data
             modelBuilder.Entity<QuestionLibrary>().ToTable("cqQuestionLibrary");
             modelBuilder.Entity<QuestionList>().ToTable("cqQuestionLists");
             modelBuilder.Entity<Section>().ToTable("cqSections");
+
+            modelBuilder.Entity<QuestionList>()
+            .HasOne(q => q.Question)
+            .WithMany(q => q.QuestionLists)
+            .HasForeignKey(q => new { q.QuestionID, q.QuestionnaireID }) 
+            .HasPrincipalKey(q => new { q.QuestionID, q.QuestionnaireID });
+
         }
     }
 }

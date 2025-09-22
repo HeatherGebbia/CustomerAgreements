@@ -26,12 +26,15 @@ namespace CustomerAgreements.Pages.Questions
         [BindProperty]
         public Question Question { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int id)
-        {           
+        public async Task<IActionResult> OnGetAsync(int id, int questionnaireId)
+        {         
             Question = await _context.Questions
             .Include(q => q.Section)
-            .ThenInclude(s => s.Questionnaire)
-            .FirstOrDefaultAsync(q => q.ID == id);
+                .ThenInclude(s => s.Questionnaire)
+            .Include(q => q.QuestionLists)
+            .FirstOrDefaultAsync(q => q.ID == id
+                                   && q.QuestionnaireID == questionnaireId);
+
 
             if (Question == null)
             {

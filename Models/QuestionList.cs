@@ -10,9 +10,14 @@ namespace CustomerAgreements.Models
     {
         [Key]
         public int QuestionListID { get; set; }
+        [Required]
         public int QuestionnaireID { get; set; }
+        [Required]
         public int SectionID { get; set; }
+        [Required]
         public int QuestionID { get; set; }
+        [ForeignKey("QuestionID, QuestionnaireID")]
+        public Question Question { get; set; } = default!;
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(500)]
@@ -23,9 +28,9 @@ namespace CustomerAgreements.Models
         [Display(Name = "Sort Order")]
         public int SortOrder { get; set; }
 
-        [Display(Name = "Send Email")]
         public bool SendEmail { get; set; }
-        public int NotificationID { get; set; }
+
+        public int? NotificationID { get; set; }
     }
 }
 

@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{id:int}/{questionnaireId:int}"
 @model CustomerAgreements.Pages.Questions.EditModel
 
 @{
@@ -13,4 +13,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/questionForm.js"></script>
 }
