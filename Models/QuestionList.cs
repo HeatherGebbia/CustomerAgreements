@@ -17,7 +17,7 @@ namespace CustomerAgreements.Models
         [Required]
         public int QuestionID { get; set; }
         [ForeignKey("QuestionID, QuestionnaireID")]
-        public Question Question { get; set; } = default!;
+        public Question? Question { get; set; }
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(500)]

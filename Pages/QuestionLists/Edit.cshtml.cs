@@ -26,34 +26,41 @@ namespace CustomerAgreements.Pages.QuestionLists
         [BindProperty]
         public QuestionList QuestionList { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(int id, int questionId, int questionnaireId)
         {
-            if (id == null)
+            QuestionList = await _context.QuestionLists
+            .FirstOrDefaultAsync(q => q.QuestionListID == id
+                                    && q.QuestionID == questionId
+                                   && q.QuestionnaireID == questionnaireId);
+
+            if (QuestionList == null)
             {
                 return NotFound();
             }
 
-            var questionlist =  await _context.QuestionLists.FirstOrDefaultAsync(m => m.QuestionListID == id);
-            if (questionlist == null)
-            {
-                return NotFound();
-            }
-            QuestionList = questionlist;
-           
             return Page();
         }
                 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int id)
         {
             if (!ModelState.IsValid)
             {
                 return Page();
-            }
-
-            _context.Attach(QuestionList).State = EntityState.Modified;
+            }            
 
             try
             {
+                var listItem = await _context.QuestionLists
+                .FirstOrDefaultAsync(q => q.QuestionListID == id);
+
+                if (listItem == null)
+                {
+                    return NotFound();
+                }
+
+                listItem.ListValue = QuestionList.ListValue;
+                listItem.SortOrder = QuestionList.SortOrder;
+                listItem.Conditional = QuestionList.Conditional;
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -65,7 +72,7 @@ namespace CustomerAgreements.Pages.QuestionLists
                 return Page();
             }
 
-            return RedirectToPage("/Question/Edit", new { id = QuestionList.QuestionID });
+            return RedirectToPage("/Questions/Edit", new { id = QuestionList.QuestionID, questionnaireId = QuestionList.QuestionnaireID });
         }
 
         private bool QuestionListExists(int id)

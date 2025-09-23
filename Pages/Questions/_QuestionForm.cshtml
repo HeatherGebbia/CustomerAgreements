@@ -43,6 +43,8 @@
         <label class="p-2 d-block">List Items</label>
         <a asp-page="/QuestionLists/Create"
            asp-route-questionId="@Model.ID"
+           asp-route-questionnaireId="@Model.QuestionnaireID"
+           asp-route-sectionId="@Model.SectionID"
            class="btn btn-link btn-sm p-0">
             + Add Item
         </a>
@@ -69,8 +71,8 @@
                             <td>@item.ListValue</td>
                             <td>@item.Conditional</td>
                             <td>
-                                <a asp-page="/QuestionLists/Edit" asp-route-id="@item.QuestionListID" class="btn btn-sm btn-primary">Edit</a>
-                                <form method="post" asp-page-handler="DeleteItem" asp-route-id="@item.QuestionListID" style="display:inline">
+                                <a asp-page="/QuestionLists/Edit" asp-route-id="@item.QuestionListID" asp-route-questionId="@item.QuestionID" asp-route-questionnaireId="@item.QuestionnaireID" class="btn btn-sm btn-primary">Edit</a>
+                                <form method="post" asp-page-handler="DeleteListItem" asp-route-questionListId="@item.QuestionListID" asp-route-questionId="@item.QuestionID" asp-route-questionnaireId="@item.QuestionnaireID" style="display:inline">
                                     <button type="submit" class="btn btn-sm btn-danger"
                                             onclick="return confirm('Delete this item?');">
                                         Delete

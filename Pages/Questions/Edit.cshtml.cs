@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace CustomerAgreements.Pages.Questions
 {
@@ -82,6 +83,35 @@ namespace CustomerAgreements.Pages.Questions
 
                 return Page();
             }            
+        }
+
+        public async Task<IActionResult> OnPostDeleteListItemAsync(int questionListId, int questionId, int questionnaireId)
+        {
+            try
+            {
+                var questionListItem = await _context.QuestionLists.FindAsync(questionListId);
+
+                if (questionListItem != null)
+                {
+                    _context.QuestionLists.Remove(questionListItem);
+                    await _context.SaveChangesAsync();
+                }
+
+                _logger.LogInformation($"User {User} deleted list item {questionListId}",
+                User.Identity?.Name ?? "Anonymous",
+                questionListId,
+                DateTime.UtcNow);
+
+                return RedirectToPage(new { id = questionId, questionnaireId = questionnaireId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting list item by user {User}: {Message}",
+                    User.Identity?.Name ?? "Anonymous",
+                    ex.Message);
+
+                return Page();
+            }
         }
     }
 }

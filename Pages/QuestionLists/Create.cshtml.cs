@@ -24,18 +24,19 @@ namespace CustomerAgreements.Pages.QuestionLists
         [BindProperty]
         public QuestionList QuestionList { get; set; } = new QuestionList();
 
-        public IActionResult OnGet(int questionId, int questionnaireId)
+        public IActionResult OnGet(int questionId, int questionnaireId, int sectionId)
         {
             QuestionList = new QuestionList
             {
                 QuestionID = questionId,
-                QuestionnaireID = questionnaireId
+                QuestionnaireID = questionnaireId,
+                SectionID = sectionId
             };
 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int questionId)
         {
             if (!ModelState.IsValid)
             {
@@ -44,7 +45,19 @@ namespace CustomerAgreements.Pages.QuestionLists
 
             try
             {
-                _context.QuestionLists.Add(QuestionList);
+                var ListItem = new QuestionList
+                {
+                    QuestionID = QuestionList.QuestionID,
+                    QuestionnaireID = QuestionList.QuestionnaireID,
+                    SectionID = QuestionList.SectionID,
+                    ListValue = QuestionList.ListValue,
+                    Conditional = QuestionList.Conditional,
+                    SortOrder = QuestionList.SortOrder,
+                    SendEmail = QuestionList.SendEmail,
+                    NotificationID = QuestionList.NotificationID
+                };
+
+                _context.QuestionLists.Add(ListItem);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation($"User {User} added new list item",
@@ -52,7 +65,7 @@ namespace CustomerAgreements.Pages.QuestionLists
                             QuestionList.QuestionListID,
                             DateTime.UtcNow);
 
-            return RedirectToPage("/Question/Edit", new { id = QuestionList.QuestionID });
+            return RedirectToPage("/Questions/Edit", new { id = questionId, questionnaireId = QuestionList.QuestionnaireID });
             }
             catch (Exception ex)
             {
