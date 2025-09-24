@@ -16,7 +16,6 @@ namespace CustomerAgreements.Models
         public int SectionID { get; set; }
         [Required]
         public int QuestionID { get; set; }
-        [ForeignKey("QuestionID, QuestionnaireID")]
         public Question? Question { get; set; }
 
         [Required(ErrorMessage = "Required")]

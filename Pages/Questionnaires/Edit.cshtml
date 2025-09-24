@@ -24,9 +24,9 @@
                         <form method="post" asp-page-handler="DeleteSection"
                               asp-route-sectionId="@s.SectionID"
                               asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID"
-                              style="display:inline">
-                            <button type="submit" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Are you sure you want to delete this section?');">
+                              style="display:inline"
+                              onsubmit="return confirm('Deleting this Section will also delete all related Questions and Question Lists. Are you sure?');">
+                            <button type="submit" class="btn btn-sm btn-danger">
                                 Delete
                             </button>
                         </form>
@@ -51,9 +51,9 @@
                                 <a asp-page="/Questions/Edit" asp-route-id="@q.ID" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID" class="btn btn-sm btn-primary">Edit</a>
                                 <form method="post" asp-page-handler="DeleteQuestion"
                                       asp-route-questionId="@q.ID" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID"
-                                      style="display:inline">
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Are you sure you want to delete this question?');">
+                                      style="display:inline"
+                                      onsubmit="return confirm('Deleting this Question will also delete all related Question Lists. Are you sure?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">
                                         Delete
                                     </button>
                                 </form>

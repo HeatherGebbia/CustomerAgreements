@@ -24,19 +24,20 @@ namespace CustomerAgreements.Pages.QuestionLists
         [BindProperty]
         public QuestionList QuestionList { get; set; } = new QuestionList();
 
-        public IActionResult OnGet(int questionId, int questionnaireId, int sectionId)
+        public IActionResult OnGet(int questionUniqueId, int questionId, int questionnaireId, int sectionId)
         {
             QuestionList = new QuestionList
             {
-                QuestionID = questionId,
+                QuestionID = questionId,           
                 QuestionnaireID = questionnaireId,
                 SectionID = sectionId
             };
 
+            ViewData["QuestionUniqueId"] = questionUniqueId; 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int questionId)
+        public async Task<IActionResult> OnPostAsync(int questionUniqueId)
         {
             if (!ModelState.IsValid)
             {
@@ -45,19 +46,7 @@ namespace CustomerAgreements.Pages.QuestionLists
 
             try
             {
-                var ListItem = new QuestionList
-                {
-                    QuestionID = QuestionList.QuestionID,
-                    QuestionnaireID = QuestionList.QuestionnaireID,
-                    SectionID = QuestionList.SectionID,
-                    ListValue = QuestionList.ListValue,
-                    Conditional = QuestionList.Conditional,
-                    SortOrder = QuestionList.SortOrder,
-                    SendEmail = QuestionList.SendEmail,
-                    NotificationID = QuestionList.NotificationID
-                };
-
-                _context.QuestionLists.Add(ListItem);
+                _context.QuestionLists.Add(QuestionList);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation($"User {User} added new list item",
@@ -65,7 +54,11 @@ namespace CustomerAgreements.Pages.QuestionLists
                             QuestionList.QuestionListID,
                             DateTime.UtcNow);
 
-            return RedirectToPage("/Questions/Edit", new { id = questionId, questionnaireId = QuestionList.QuestionnaireID });
+                return RedirectToPage("/Questions/Edit", new
+                {
+                    id = questionUniqueId,
+                    questionnaireId = QuestionList.QuestionnaireID
+                });
             }
             catch (Exception ex)
             {

@@ -26,22 +26,22 @@ namespace CustomerAgreements.Pages.QuestionLists
         [BindProperty]
         public QuestionList QuestionList { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int id, int questionId, int questionnaireId)
+        public async Task<IActionResult> OnGetAsync(int questionListId, int questionUniqueId, int questionnaireId)
         {
             QuestionList = await _context.QuestionLists
-            .FirstOrDefaultAsync(q => q.QuestionListID == id
-                                    && q.QuestionID == questionId
-                                   && q.QuestionnaireID == questionnaireId);
+                .FirstOrDefaultAsync(ql => ql.QuestionListID == questionListId
+                                        && ql.QuestionnaireID == questionnaireId);
 
             if (QuestionList == null)
             {
                 return NotFound();
             }
 
+            ViewData["QuestionUniqueId"] = questionUniqueId;
             return Page();
         }
-                
-        public async Task<IActionResult> OnPostAsync(int id)
+
+        public async Task<IActionResult> OnPostAsync(int questionUniqueId)
         {
             if (!ModelState.IsValid)
             {
@@ -50,18 +50,19 @@ namespace CustomerAgreements.Pages.QuestionLists
 
             try
             {
-                var listItem = await _context.QuestionLists
-                .FirstOrDefaultAsync(q => q.QuestionListID == id);
-
-                if (listItem == null)
-                {
-                    return NotFound();
-                }
-
-                listItem.ListValue = QuestionList.ListValue;
-                listItem.SortOrder = QuestionList.SortOrder;
-                listItem.Conditional = QuestionList.Conditional;
+                _context.Attach(QuestionList).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                _logger.LogInformation("User {User} updated list item {Id}",
+                    User.Identity?.Name ?? "Anonymous",
+                    QuestionList.QuestionListID);
+
+                return RedirectToPage("/Questions/Edit", new
+                {
+                    id = questionUniqueId,
+                    questionnaireId = QuestionList.QuestionnaireID
+                });
+
             }
             catch (Exception ex)
             {

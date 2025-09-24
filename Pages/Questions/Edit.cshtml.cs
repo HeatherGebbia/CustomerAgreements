@@ -65,6 +65,8 @@ namespace CustomerAgreements.Pages.Questions
                     return NotFound();
                 }
 
+                var originalAnswerType = (existingQuestion.AnswerType ?? "").ToLower();
+
                 existingQuestion.QuestionTitle = Question.QuestionTitle;
                 existingQuestion.QuestionText = Question.QuestionText;
                 existingQuestion.AnswerType = Question.AnswerType;
@@ -73,7 +75,25 @@ namespace CustomerAgreements.Pages.Questions
                 existingQuestion.Text = existingQuestion.QuestionText;
                 await _context.SaveChangesAsync();
 
-                return RedirectToPage("/Questionnaires/Edit", new { id = existingQuestion.  QuestionnaireID });
+                _logger.LogInformation($"User {User} created new question",
+                            User.Identity?.Name ?? "Anonymous",
+                            Question.QuestionID,
+                            DateTime.UtcNow);
+
+                var newAnswerType = (Question.AnswerType ?? "").ToLower();
+
+                if (newAnswerType.Contains("list") && !originalAnswerType.Contains("list"))
+                {
+                    return RedirectToPage("/Questions/Edit", new
+                    {
+                        id = id,
+                        questionnaireId = Question.QuestionnaireID
+                    });
+                }
+                else
+                {
+                    return RedirectToPage("/Questionnaires/Edit", new { id = existingQuestion.QuestionnaireID });
+                }                
             }
             catch (Exception ex)
             {
@@ -85,7 +105,7 @@ namespace CustomerAgreements.Pages.Questions
             }            
         }
 
-        public async Task<IActionResult> OnPostDeleteListItemAsync(int questionListId, int questionId, int questionnaireId)
+        public async Task<IActionResult> OnPostDeleteListItemAsync(int questionListId, int questionId, int questionnaireId, int questionUniqueId)
         {
             try
             {
@@ -102,7 +122,7 @@ namespace CustomerAgreements.Pages.Questions
                 questionListId,
                 DateTime.UtcNow);
 
-                return RedirectToPage(new { id = questionId, questionnaireId = questionnaireId });
+                return RedirectToPage(new { id = questionUniqueId, questionnaireId = questionnaireId });
             }
             catch (Exception ex)
             {

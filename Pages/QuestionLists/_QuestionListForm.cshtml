@@ -1,9 +1,13 @@
 ﻿@model CustomerAgreements.Models.QuestionList
+@{
+    var questionUniqueId = ViewData["QuestionUniqueId"];
+}
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <input type="hidden" asp-for="QuestionnaireID" />
 <input type="hidden" asp-for="SectionID" />
 <input type="hidden" asp-for="QuestionID" />
+<input type="hidden" asp-for="QuestionListID" />
 <div class="form-group d-flex">
     <label asp-for="ListValue" class="p-2 text-right" style="flex:0 0 15%"></label>
     <input asp-for="ListValue" class="form-control" style="flex:1 0 auto;width:auto" />
@@ -27,9 +31,15 @@
     <label class="p-2 d-block">Placeholder for Conditional grid</label>
 </div>
 <div class="d-flex flex-row">
-    <button type="submit" asp-page-handler="Save" asp-route-id="@Model.QuestionListID" asp-route-questionId="@Model.QuestionID" class="btn btn-primary btn-sm">Save</button>
+    <button type="submit"
+            asp-page-handler="Save"
+            asp-route-questionUniqueId="@questionUniqueId"
+            class="btn btn-primary btn-sm">
+        Save
+    </button>
     <span>&nbsp;</span>
-    <a asp-page="/Questions/Edit" asp-route-id="@Model.QuestionID" asp-route-questionnaireId="@Model.QuestionnaireID" class="btn btn-secondary btn-sm">
-        Cancel
-    </a>
+    <a asp-page="/Questions/Edit"
+       asp-route-id="@questionUniqueId"
+       asp-route-questionnaireId="@Model.QuestionnaireID"
+       class="btn btn-secondary btn-sm">Cancel</a>
 </div>

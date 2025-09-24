@@ -3,6 +3,8 @@
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <input type="hidden" asp-for="QuestionnaireID" />
 <input type="hidden" asp-for="SectionID" />
+<input type="hidden" asp-for="ID" />
+<input type="hidden" asp-for="QuestionID" />
 <div class="form-group d-flex">
     <label asp-for="QuestionTitle" class="p-2 text-right" style="flex:0 0 15%"></label>
     <input asp-for="QuestionTitle" class="form-control" style="flex:1 0 auto;width:auto" />
@@ -37,62 +39,6 @@
     <span asp-validation-for="AnswerType" class="text-danger"></span>
 </div>
 
-<div id="listItemsRow" class="form-group d-flex align-items-start d-none">
-    <!-- Left: label + small link -->
-    <div style="flex:0 0 15%; max-width:15%;" class="text-right pr-2">
-        <label class="p-2 d-block">List Items</label>
-        <a asp-page="/QuestionLists/Create"
-           asp-route-questionId="@Model.ID"
-           asp-route-questionnaireId="@Model.QuestionnaireID"
-           asp-route-sectionId="@Model.SectionID"
-           class="btn btn-link btn-sm p-0">
-            + Add Item
-        </a>
-    </div>
-
-    <!-- Right: message + grid -->
-    <div style="flex:1 0 auto; width:auto;">
-        <div id="listMessage" class="text-info mb-2"></div>
-
-        @if (Model.QuestionLists != null && Model.QuestionLists.Any())
-        {
-            <table class="table table-bordered table-sm w-auto">
-                <thead>
-                    <tr>
-                        <th>List Item</th>
-                        <th>Conditional</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.QuestionLists.OrderBy(i => i.SortOrder))
-                    {
-                        <tr>
-                            <td>@item.ListValue</td>
-                            <td>@item.Conditional</td>
-                            <td>
-                                <a asp-page="/QuestionLists/Edit" asp-route-id="@item.QuestionListID" asp-route-questionId="@item.QuestionID" asp-route-questionnaireId="@item.QuestionnaireID" class="btn btn-sm btn-primary">Edit</a>
-                                <form method="post" asp-page-handler="DeleteListItem" asp-route-questionListId="@item.QuestionListID" asp-route-questionId="@item.QuestionID" asp-route-questionnaireId="@item.QuestionnaireID" style="display:inline">
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Delete this item?');">
-                                        Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        else
-        {
-            <em>No items yet. Please add list items.</em>
-        }
-    </div>
-</div>
-
-
-
 <br />
 <div class="d-flex flex-row">
     <button type="submit" asp-page-handler="Save" asp-route-id="@Model.ID" class="btn btn-primary btn-sm">Save</button>
@@ -101,5 +47,4 @@
         Cancel
     </a>
 </div>
-<input asp-for="QuestionID" type="hidden" />
 

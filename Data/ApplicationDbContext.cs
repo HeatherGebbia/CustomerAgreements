@@ -50,6 +50,21 @@ namespace CustomerAgreements.Data
             .HasForeignKey(q => new { q.QuestionID, q.QuestionnaireID }) 
             .HasPrincipalKey(q => new { q.QuestionID, q.QuestionnaireID });
 
+            // Section → Questions (cascade delete)
+            //modelBuilder.Entity<Section>()
+            //    .HasMany(s => s.Questions)
+            //    .WithOne(q => q.Section)
+            //    .HasForeignKey(q => q.SectionID)
+            //    .OnDelete(DeleteBehavior.Cascade);
+
+            //// Question → QuestionLists (cascade delete)
+            //modelBuilder.Entity<Question>()
+            //    .HasMany(q => q.QuestionLists)
+            //    .WithOne(ql => ql.Question)
+            //    .HasForeignKey(ql => ql.QuestionID)
+            //    .OnDelete(DeleteBehavior.Cascade);
+
+
         }
     }
 }

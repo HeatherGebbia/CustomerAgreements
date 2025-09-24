@@ -84,10 +84,22 @@ namespace CustomerAgreements.Pages.Questionnaires
 
             try
             {
-                var section = await _context.Sections.FindAsync(sectionId);
+                var section = await _context.Sections
+                    .Include(s => s.Questions)
+                        .ThenInclude(q => q.QuestionLists)
+                    .FirstOrDefaultAsync(s => s.SectionID == sectionId);
 
                 if (section != null)
                 {
+                    foreach (var question in section.Questions)
+                    {
+                        if (question.QuestionLists.Any())
+                        {
+                            _context.QuestionLists.RemoveRange(question.QuestionLists);
+                        }
+                    }
+
+                    _context.Questions.RemoveRange(section.Questions);
                     _context.Sections.Remove(section);
                     await _context.SaveChangesAsync();
                 }
@@ -114,18 +126,25 @@ namespace CustomerAgreements.Pages.Questionnaires
             try
             {
                 var question = await _context.Questions
+                    .Include(q => q.QuestionLists)
                     .Include(q => q.Section)
-                    .ThenInclude(q => q.Questionnaire)
+                        .ThenInclude(s => s.Questionnaire)
                     .FirstOrDefaultAsync(q => q.ID == questionId
-                               && q.QuestionnaireID == questionnaireId);
+                                           && q.QuestionnaireID == questionnaireId);
+
 
                 if (question == null)
                 {
                     return NotFound();
                 }
 
-                //var questionnaireId = question.Section.QuestionnaireID;
+                // Delete child QuestionLists first
+                if (question.QuestionLists != null && question.QuestionLists.Any())
+                {
+                    _context.QuestionLists.RemoveRange(question.QuestionLists);
+                }
 
+                // Delete parent Question
                 _context.Questions.Remove(question);
                 await _context.SaveChangesAsync();
 

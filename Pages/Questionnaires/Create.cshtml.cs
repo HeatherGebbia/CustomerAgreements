@@ -22,13 +22,12 @@ namespace CustomerAgreements.Pages.Questionnaires
 
         [BindProperty]
         public Questionnaire Questionnaire { get; set; } = new Questionnaire();
-        //public SelectList Statuses { get; set; }
 
         public void OnGet()
         {
             try
             {
-                //Statuses = new SelectList(Statuses.Items.Cast<List>().Where(l => l.ListName == "Status"), nameof(List.ListID), nameof(List.ListValue));
+                
             }
             catch (Exception ex)
             {
