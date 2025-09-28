@@ -1,0 +1,17 @@
+﻿@page
+@model CustomerAgreements.Pages.DependentQuestions.CreateModel
+
+@{
+    ViewData["Title"] = "Create New Dependent Question";
+}
+
+<h1>Create Dependent Question</h1>
+
+<form method="post">
+    <partial name="_DependentQuestionForm" model="Model.DependentQuestion" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/dependentQuestionForm.js"></script>
+}
