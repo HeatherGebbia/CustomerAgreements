@@ -75,7 +75,7 @@ namespace CustomerAgreements.Pages.Questions
                 existingQuestion.Text = existingQuestion.QuestionText;
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"User {User} created new question",
+                _logger.LogInformation($"User {User} edited question",
                             User.Identity?.Name ?? "Anonymous",
                             Question.QuestionID,
                             DateTime.UtcNow);

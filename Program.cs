@@ -1,10 +1,10 @@
 using CustomerAgreements.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Serilog;
-using Serilog.Sinks.MSSqlServer;
 using Serilog.Filters;
-
+using Serilog.Sinks.MSSqlServer;
+using System;
+using System.Diagnostics;
 
 var columnOptions = new Serilog.Sinks.MSSqlServer.ColumnOptions();
 columnOptions.Store.Remove(StandardColumn.Properties);
@@ -13,21 +13,30 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("Logs/app-log-.txt", rollingInterval: RollingInterval.Day) 
     .CreateLogger();
 
-Log.Logger = new LoggerConfiguration()  
-    // Database for only your app events
-    .WriteTo.Logger(lc => lc
-        .Filter.ByIncludingOnly(Matching.FromSource("CustomerAgreements"))
-        .WriteTo.MSSqlServer(
-            connectionString: "Server=localhost;Database=HeatherLocalDB;Trusted_Connection=True;TrustServerCertificate=True;",
-            sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions { TableName = "UserLogs", AutoCreateSqlTable = true },
-            restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
-            columnOptions: columnOptions)
-    )
-    .CreateLogger();
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog();
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration) 
+        .WriteTo.File("Logs/app-log-.txt", rollingInterval: RollingInterval.Day);
+
+    var connString = context.Configuration.GetConnectionString("DefaultConnection");
+
+    configuration.WriteTo.Logger(lc => lc
+        .Filter.ByIncludingOnly(Matching.FromSource("CustomerAgreements"))
+        .WriteTo.MSSqlServer(
+            connectionString: connString,
+            sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+            {
+                TableName = "UserLogs",
+                AutoCreateSqlTable = false 
+            },
+            restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
+            columnOptions: columnOptions
+        )
+    );
+});
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
