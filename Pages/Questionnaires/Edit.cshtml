@@ -20,7 +20,7 @@
                 <tr class="table-secondary">
                 <td>@s.Text</td>
                 <td>
-                    <a asp-page="/Sections/Edit" asp-route-id="@s.SectionID" class="btn btn-sm btn-primary">Edit</a>
+                        <a asp-page="/Sections/Edit" asp-route-sectionId="@s.SectionID" class="btn btn-sm btn-primary">Edit</a>
                         <form method="post" asp-page-handler="DeleteSection"
                               asp-route-sectionId="@s.SectionID"
                               asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID"

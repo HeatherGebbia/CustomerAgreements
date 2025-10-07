@@ -29,6 +29,7 @@ namespace CustomerAgreements.Pages.QuestionLists
         public async Task<IActionResult> OnGetAsync(int questionListId, int questionUniqueId, int questionnaireId)
         {
             QuestionList = await _context.QuestionLists
+                .Include(q => q.DependentQuestions)
                 .FirstOrDefaultAsync(ql => ql.QuestionListID == questionListId
                                         && ql.QuestionnaireID == questionnaireId);
 
@@ -73,12 +74,41 @@ namespace CustomerAgreements.Pages.QuestionLists
                 return Page();
             }
 
-            return RedirectToPage("/Questions/Edit", new { id = QuestionList.QuestionID, questionnaireId = QuestionList.QuestionnaireID });
+            //return RedirectToPage("/Questions/Edit", new { id = QuestionList.QuestionID, questionnaireId = QuestionList.QuestionnaireID });
         }
 
-        private bool QuestionListExists(int id)
+        public async Task<IActionResult> OnPostDeleteDependentQuestionAsync(int dependentQuestionId, int questionListId, int questionUniqueId, int questionnaireId)
         {
-            return _context.QuestionLists.Any(e => e.QuestionListID == id);
+            try
+            {
+                var dependentQuestion = await _context.DependentQuestions.FindAsync(dependentQuestionId);
+
+                if (dependentQuestion != null)
+                {
+                    _context.DependentQuestions.Remove(dependentQuestion);
+                    await _context.SaveChangesAsync();
+                }
+
+                _logger.LogInformation($"User {User} deleted dependent question {dependentQuestionId}",
+                User.Identity?.Name ?? "Anonymous",
+                dependentQuestionId,
+                DateTime.UtcNow);
+
+                return RedirectToPage(new { questionListId = questionListId, questionUniqueId = questionUniqueId, questionnaireId = questionnaireId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting dependent question by user {User}: {Message}",
+                    User.Identity?.Name ?? "Anonymous",
+                    ex.Message);
+
+                return Page();
+            }
         }
+
+        //private bool QuestionListExists(int id)
+        //{
+        //    return _context.QuestionLists.Any(e => e.QuestionListID == id);
+        //}
     }
 }

@@ -25,17 +25,13 @@ namespace CustomerAgreements.Pages.DependentQuestions
         }
 
         [BindProperty]
-        public Question DependentQuestion { get; set; } = default!;
+        public DependentQuestion DependentQuestion { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int id, int questionnaireId)
+        public async Task<IActionResult> OnGetAsync(int dependentQuestionId)
         {
             DependentQuestion = await _context.DependentQuestions
-            .Include(q => q.Section)
-                .ThenInclude(s => s.Questionnaire)
-            .Include(q => q.QuestionLists)
-            .FirstOrDefaultAsync(q => q.ID == id
-                                   && q.QuestionnaireID == questionnaireId);
-
+                .Include(dq => dq.DependentQuestionLists)
+            .FirstOrDefaultAsync(q => q.DependentQuestionID == dependentQuestionId);
 
             if (DependentQuestion == null)
             {
@@ -46,7 +42,7 @@ namespace CustomerAgreements.Pages.DependentQuestions
             return Page();
         }
 
-        public async Task<IActionResult> OnPostSaveAsync(int id)
+        public async Task<IActionResult> OnPostSaveAsync(int dependentQuestionId)
         {
             if (!ModelState.IsValid)
             {
@@ -56,48 +52,46 @@ namespace CustomerAgreements.Pages.DependentQuestions
 
             try
             {
-                var existingQuestion = await _context.Questions
-                .Include(q => q.Section)
-                .FirstOrDefaultAsync(q => q.ID == id);
+                var existingDependentQuestion = await _context.DependentQuestions
+                .FirstOrDefaultAsync(q => q.DependentQuestionID == dependentQuestionId);
 
-                if (existingQuestion == null)
+                if (existingDependentQuestion == null)
                 {
                     return NotFound();
                 }
 
-                var originalAnswerType = (existingQuestion.AnswerType ?? "").ToLower();
+                var originalDependentAnswerType = (existingDependentQuestion.DependentAnswerType ?? "").ToLower();
 
-                existingQuestion.QuestionTitle = Question.QuestionTitle;
-                existingQuestion.QuestionText = Question.QuestionText;
-                existingQuestion.AnswerType = Question.AnswerType;
-                existingQuestion.IsRequired = Question.IsRequired;
-                existingQuestion.SortOrder = Question.SortOrder;
-                existingQuestion.Text = existingQuestion.QuestionText;
+                existingDependentQuestion.DependentQuestionTitle = DependentQuestion.DependentQuestionTitle;
+                existingDependentQuestion.DependentQuestionText = DependentQuestion.DependentQuestionText;
+                existingDependentQuestion.DependentAnswerType = DependentQuestion.DependentAnswerType;
+                existingDependentQuestion.IsRequired = DependentQuestion.IsRequired;
+                existingDependentQuestion.SortOrder = DependentQuestion.SortOrder;
+                existingDependentQuestion.Text = existingDependentQuestion.DependentQuestionText;
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"User {User} created new question",
+                _logger.LogInformation($"User {User} edited dependent question",
                             User.Identity?.Name ?? "Anonymous",
-                            Question.QuestionID,
+                            DependentQuestion.DependentQuestionID,
                             DateTime.UtcNow);
 
-                var newAnswerType = (Question.AnswerType ?? "").ToLower();
+                var newDependentAnswerType = (DependentQuestion.DependentAnswerType ?? "").ToLower();
 
-                if (newAnswerType.Contains("list") && !originalAnswerType.Contains("list"))
+                if (newDependentAnswerType.Contains("list") && !originalDependentAnswerType.Contains("list"))
                 {
-                    return RedirectToPage("/Questions/Edit", new
+                    return RedirectToPage("/DependentQuestions/Edit", new
                     {
-                        id = id,
-                        questionnaireId = Question.QuestionnaireID
+                        dependentQuestionId = dependentQuestionId
                     });
                 }
                 else
                 {
-                    return RedirectToPage("/Questionnaires/Edit", new { id = existingQuestion.QuestionnaireID });
+                    return RedirectToPage("/QuestionLists/Edit", new { id = existingDependentQuestion.QuestionListID });
                 }                
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving question by user {User}: {Message}",
+                _logger.LogError(ex, "Error saving dependent question by user {User}: {Message}",
                     User.Identity?.Name ?? "Anonymous",
                     ex.Message);
 
@@ -105,28 +99,28 @@ namespace CustomerAgreements.Pages.DependentQuestions
             }            
         }
 
-        public async Task<IActionResult> OnPostDeleteListItemAsync(int questionListId, int questionId, int questionnaireId, int questionUniqueId)
+        public async Task<IActionResult> OnPostDeleteListItemAsync(int dependentQuestionListId, int dependentQuestionId)
         {
             try
             {
-                var questionListItem = await _context.QuestionLists.FindAsync(questionListId);
+                var dependentQuestionListItem = await _context.DependentQuestionLists.FindAsync(dependentQuestionListId);
 
-                if (questionListItem != null)
+                if (dependentQuestionListItem != null)
                 {
-                    _context.QuestionLists.Remove(questionListItem);
+                    _context.DependentQuestionLists.Remove(dependentQuestionListItem);
                     await _context.SaveChangesAsync();
                 }
 
-                _logger.LogInformation($"User {User} deleted list item {questionListId}",
+                _logger.LogInformation($"User {User} deleted dependent list item {dependentQuestionListId}",
                 User.Identity?.Name ?? "Anonymous",
-                questionListId,
+                dependentQuestionListId,
                 DateTime.UtcNow);
 
-                return RedirectToPage(new { id = questionUniqueId, questionnaireId = questionnaireId });
+                return RedirectToPage(new { dependentQuestionId = dependentQuestionId });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting list item by user {User}: {Message}",
+                _logger.LogError(ex, "Error deleting dependent list item by user {User}: {Message}",
                     User.Identity?.Name ?? "Anonymous",
                     ex.Message);
 

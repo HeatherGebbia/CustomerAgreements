@@ -24,13 +24,13 @@ namespace CustomerAgreements.Pages.DependentQuestions
         [BindProperty]
         public DependentQuestion DependentQuestion { get; set; } = new DependentQuestion();
 
-        public IActionResult OnGet(int sectionId, int questionnaireId, int questionId, int questionListId)
+        public IActionResult OnGet(int sectionId, int questionnaireId, int questionUniqueId, int questionListId)
         {
             DependentQuestion = new DependentQuestion
             {
                 SectionID = sectionId,
                 QuestionnaireID = questionnaireId,
-                QuestionID = questionId,
+                QuestionID = questionUniqueId,
                 QuestionListID = questionListId,
             };
 
@@ -38,7 +38,7 @@ namespace CustomerAgreements.Pages.DependentQuestions
             return Page();
         }        
 
-        public async Task<IActionResult> OnPostAsync(int questionId)
+        public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
@@ -47,7 +47,8 @@ namespace CustomerAgreements.Pages.DependentQuestions
             }
 
             try
-            {    
+            {
+                DependentQuestion.Text = DependentQuestion.DependentQuestionText;
                 _context.DependentQuestions.Add(DependentQuestion);
                 await _context.SaveChangesAsync();
 
@@ -63,13 +64,11 @@ namespace CustomerAgreements.Pages.DependentQuestions
                 {
                     return RedirectToPage("/DependentQuestions/Edit", new
                     {
-                        id = newDependentQuestionId,
-                        questionnaireId = DependentQuestion.QuestionnaireID,
-                        questionId = DependentQuestion.QuestionID
+                        dependentQuestionId = newDependentQuestionId
                     });
                 }                
 
-                return RedirectToPage("/Question/Edit", new { id = questionId });
+                return RedirectToPage("/QuestionLists/Edit", new { questionListId = DependentQuestion.QuestionListID, questionUniqueId = DependentQuestion.QuestionID, questionnaireId = DependentQuestion.QuestionnaireID });
             }
             catch (Exception ex)
             {
