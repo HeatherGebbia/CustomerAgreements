@@ -86,7 +86,7 @@ namespace CustomerAgreements.Pages.DependentQuestions
                 }
                 else
                 {
-                    return RedirectToPage("/QuestionLists/Edit", new { id = existingDependentQuestion.QuestionListID });
+                    return RedirectToPage("/QuestionLists/Edit", new { questionListId = existingDependentQuestion.QuestionListID, questionUniqueId = existingDependentQuestion.QuestionID, questionnaireId = existingDependentQuestion.QuestionnaireID });
                 }                
             }
             catch (Exception ex)

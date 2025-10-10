@@ -39,6 +39,11 @@ namespace CustomerAgreements.Pages
 
         public async Task OnGetAsync()
         {
+            _logger.LogInformation($"User Viewed Core Site",
+                            User.Identity?.Name ?? "Anonymous",
+                            0,
+                            DateTime.UtcNow);
+
             var customers = from c in _context.Customers
                             select c;
 
