@@ -44,7 +44,7 @@ else
                     <td>@q.CreatedDate.ToShortDateString()</td>
                     <td>
                         <form method="post" class="p-2 btn-group" style="display:inline" role="group">
-                            <a class="btn btn-primary btn-sm" asp-page="./Detail" asp-route-id="@q.QuestionnaireID">
+                            <a class="btn btn-primary btn-sm" asp-page="/Agreement/Create" asp-route-questionnaireId="@q.QuestionnaireID" asp-route-preview="true">
                                 Preview
                             </a>
                             <a class="btn btn-primary btn-sm" asp-page="./Edit" asp-route-id="@q.QuestionnaireID">

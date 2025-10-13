@@ -1,0 +1,11 @@
+﻿@page "{questionnaireId:int}/{agreementId:int}"
+@model CustomerAgreements.Pages.Agreements.DetailModel
+
+<form method="post">
+    <partial name="_AgreementForm" model="Model.FormModel" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/agreementForm.js"></script>
+}

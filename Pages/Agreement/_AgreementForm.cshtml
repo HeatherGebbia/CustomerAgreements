@@ -1,0 +1,71 @@
+﻿@model CustomerAgreements.Models.AgreementFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<input type="hidden" asp-for="Agreement.QuestionnaireID" />
+<div class="table-responsive">
+    <table class="table table-bordered w-100 align-middle mb-4">
+        <tbody>
+            <!-- Header row -->
+            <tr class="bg-secondary text-white text-center">
+                <td colspan="2" class="fw-bold py-2">Customer Logistics</td>
+            </tr>
+
+            <!-- Each row stacks vertically on small screens -->
+            <tr class="d-block d-md-table-row">
+                <td class="fw-semibold text-start d-block d-md-table-cell w-25">Customer ID</td>
+                <td class="text-start d-block d-md-table-cell w-75">@Model.Agreement.CustomerID</td>
+            </tr>
+
+            <tr class="d-block d-md-table-row">
+                <td class="fw-semibold text-start d-block d-md-table-cell">Agreement ID</td>
+                <td class="text-start d-block d-md-table-cell">@Model.Agreement.AgreementID</td>
+            </tr>
+
+            <tr class="d-block d-md-table-row">
+                <td class="fw-semibold text-start d-block d-md-table-cell">Customer Name</td>
+                <td class="text-start d-block d-md-table-cell">
+                    <input asp-for="Agreement.CustomerName" class="form-control w-100" />
+                    <span asp-validation-for="Agreement.CustomerName" class="text-danger"></span>
+                </td>
+            </tr>
+
+            <tr class="d-block d-md-table-row">
+                <td class="fw-semibold text-start d-block d-md-table-cell">Email</td>
+                <td class="text-start d-block d-md-table-cell">
+                    <input asp-for="Agreement.CustomerEmail" class="form-control w-100" />
+                    <span asp-validation-for="Agreement.CustomerEmail" class="text-danger"></span>
+                </td>
+            </tr>
+
+            @if (Model.Questionnaire.Sections != null && Model.Questionnaire.Sections.Any())
+            {
+                @foreach (var s in Model.Questionnaire.Sections.OrderBy(s => s.SortOrder))
+                {
+                    <tr class="bg-secondary text-white text-center">
+                        <td colspan="2" class="fw-bold py-2">@s.Text</td>
+                    </tr>
+                    @if (s.IncludeInstructions)
+                    {
+                        <tr class="alert alert-primary text-center mb-4">
+                            <td colspan="2">@s.Instructions</td>
+                        </tr>
+                    }
+                    @if (s.Questions != null && s.Questions.Any())
+                        {
+                        var questionNo = 1;
+                        foreach (var q in s.Questions.OrderBy(q => q.SortOrder))
+                                {
+                                    <tr>
+                                        <td>
+                                            @($"{questionNo}. {q.Text}")
+                                        </td>
+                                    </tr>
+                                    questionNo++;
+                                }
+                        }
+                }
+            }
+                </tbody>
+    </table>
+</div>
+
