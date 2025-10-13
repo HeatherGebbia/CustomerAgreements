@@ -25,21 +25,29 @@ namespace CustomerAgreements.Pages.Sections
         [BindProperty]
         public Section Section { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(int sectionId)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation($"User Viewed Sections edit page",
+                            User.Identity?.Name ?? "Anonymous",
+                            0,
+                            DateTime.UtcNow);
 
-            var section =  await _context.Sections.FirstOrDefaultAsync(m => m.SectionID == id);
-            if (section == null)
-            {
-                return NotFound();
+                var section = await _context.Sections.FirstOrDefaultAsync(m => m.SectionID == sectionId);
+                if (section == null)
+                {
+                    return NotFound();
+                }
+                Section = section;
+                ViewData["QuestionnaireID"] = new SelectList(_context.Questionnaires, "QuestionnaireID", "QuestionnaireName");
+                return Page();
             }
-            Section = section;
-           ViewData["QuestionnaireID"] = new SelectList(_context.Questionnaires, "QuestionnaireID", "QuestionnaireName");
-            return Page();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading section {sectionId} for edit", sectionId);
+                return StatusCode(500, "An error occurred while loading the section.");
+            }
         }
                 
         public async Task<IActionResult> OnPostSaveAsync()

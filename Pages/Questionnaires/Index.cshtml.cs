@@ -23,6 +23,11 @@ namespace CustomerAgreements.Pages.Questionnaires
 
         public async Task OnGetAsync()
         {
+            _logger.LogInformation($"User Viewed Questionnaires page",
+                            User.Identity?.Name ?? "Anonymous",
+                            0,
+                            DateTime.UtcNow);
+
             Questionnaires = await _context.Questionnaires.ToListAsync();
         }
 

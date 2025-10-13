@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Serilog.Core;
 
-namespace CustomerAgreements.Pages.QuestionLists
+namespace CustomerAgreements.Pages.DependentQuestionLists
 {
     public class CreateModel : PageModel
     {
@@ -22,12 +22,13 @@ namespace CustomerAgreements.Pages.QuestionLists
         }
 
         [BindProperty]
-        public QuestionList QuestionList { get; set; } = new QuestionList();
+        public DependentQuestionList DependentQuestionList { get; set; } = new DependentQuestionList();
 
-        public IActionResult OnGet(int questionId, int questionnaireId, int sectionId)
+        public IActionResult OnGet(int questionId, int dependentQuestionId, int questionnaireId, int sectionId)
         {
-            QuestionList = new QuestionList
+            DependentQuestionList = new DependentQuestionList
             {
+                DependentQuestionID = dependentQuestionId,
                 QuestionID = questionId,           
                 QuestionnaireID = questionnaireId,
                 SectionID = sectionId
@@ -36,7 +37,7 @@ namespace CustomerAgreements.Pages.QuestionLists
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int questionId, int questionnaireId)
+        public async Task<IActionResult> OnPostAsync(int dependentQuestionId)
         {
             if (!ModelState.IsValid)
             {
@@ -45,36 +46,27 @@ namespace CustomerAgreements.Pages.QuestionLists
 
             try
             {
-                _context.QuestionLists.Add(QuestionList);
+                _context.DependentQuestionLists.Add(DependentQuestionList);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"User {User} added new list item",
+                _logger.LogInformation($"User {User} added new dependent list item",
                             User.Identity?.Name ?? "Anonymous",
-                            QuestionList.QuestionListID,
+                            DependentQuestionList.DependentQuestionListID,
                             DateTime.UtcNow);
 
-                if (QuestionList.Conditional == true)
+                return RedirectToPage("/DependentQuestions/Edit", new
                 {
-                    return RedirectToPage("/QuestionLists/Edit", new
-                    {
-                        questionListId = QuestionList.QuestionListID
-                    });
-                }
-
-                return RedirectToPage("/Questions/Edit", new
-                {
-                    questionId,
-                    questionnaireId
+                    dependentQuestionId = dependentQuestionId
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error adding list item. {ex.Message}",
-                    QuestionList.ListValue,
+                _logger.LogError(ex, $"Error adding dependent list item. {ex.Message}",
+                    DependentQuestionList.ListValue,
                     User.Identity?.Name ?? "Anonymous",
                     DateTime.UtcNow);
 
-                ModelState.AddModelError("", "Unable to save list item. See logs for details.");
+                ModelState.AddModelError("", "Unable to save dependent list item. See logs for details.");
                 return Page();
             }
         }

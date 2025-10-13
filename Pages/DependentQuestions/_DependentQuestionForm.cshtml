@@ -7,17 +7,17 @@
 <input type="hidden" asp-for="QuestionID" />
 <input type="hidden" asp-for="QuestionListID" />
 <div class="form-group d-flex">
-    <label asp-for="DependentQuestionTitle" class="p-2 text-right" style="flex:0 0 15%"></label>
+    <label asp-for="DependentQuestionTitle" class="p-2 text-right" style="flex:0 0 20%"></label>
     <input asp-for="DependentQuestionTitle" class="form-control" style="flex:1 0 auto;width:auto" />
     <span asp-validation-for="DependentQuestionTitle" class="text-danger"></span>
 </div>
 <div class="form-group d-flex">
-    <label asp-for="DependentQuestionText" class="p-2 text-right" style="flex:0 0 15%"></label>
+    <label asp-for="DependentQuestionText" class="p-2 text-right" style="flex:0 0 20%"></label>
     <textarea asp-for="DependentQuestionText" class="form-control" style="flex:1 0 auto;width:auto" rows="3"></textarea>
     <span asp-validation-for="DependentQuestionText" class="text-danger"></span>
 </div>
 <div class="form-group d-flex align-items-center">
-    <label asp-for="IsRequired" class="p-2 text-right" style="flex:0 0 15%"></label>
+    <label asp-for="IsRequired" class="p-2 text-right" style="flex:0 0 20%"></label>
     <div>
         <input type="radio" asp-for="IsRequired" value="true" id="RequiredYes" />
         <label for="RequiredYes">Yes</label>
@@ -26,12 +26,12 @@
     </div>
 </div>
 <div class="form-group d-flex">
-    <label asp-for="SortOrder" class="p-2 text-right" style="flex:0 0 15%"></label>
+    <label asp-for="SortOrder" class="p-2 text-right" style="flex:0 0 20%"></label>
     <input asp-for="SortOrder" class="form-control" style="flex:1 0 auto;width:auto" />
     <span asp-validation-for="SortOrder" class="text-danger"></span>
 </div>
 <div class="form-group d-flex">
-    <label asp-for="DependentAnswerType" class="p-2 text-right" style="flex:0 0 15%"></label>
+    <label asp-for="DependentAnswerType" class="p-2 text-right" style="flex:0 0 20%"></label>
     <select asp-for="DependentAnswerType"
             asp-items="@(ViewData["AnswerTypeOptions"] as List<SelectListItem>)"
             class="form-control" style="flex:1 0 auto;width:auto">
@@ -42,9 +42,9 @@
 
 <br />
 <div class="d-flex flex-row">
-    <button type="submit" asp-page-handler="Save" asp-route-id="@Model.DependentQuestionID" class="btn btn-primary btn-sm">Save</button>
+    <button type="submit" asp-page-handler="Save" asp-route-dependentQuestionId="@Model.DependentQuestionID" class="btn btn-primary btn-sm">Save</button>
     <span>&nbsp;</span>
-    <a asp-page="/Question/Edit" asp-route-id="@Model.QuestionID" class="btn btn-secondary btn-sm">
+    <a asp-page="/QuestionLists/Edit" asp-route-questionListId="@Model.QuestionListID" class="btn btn-secondary btn-sm">
         Cancel
     </a>
 </div>

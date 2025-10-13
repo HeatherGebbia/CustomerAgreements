@@ -1,4 +1,4 @@
-﻿@page "{id:int}/{questionnaireId:int}"
+﻿@page "{questionId:int}/{questionnaireId:int}"
 @model CustomerAgreements.Pages.Questions.EditModel
 
 @{
@@ -18,7 +18,6 @@
         <div style="flex:0 0 15%; max-width:15%;" class="text-right pr-2">
             <label class="p-2 d-block">List Items</label>
             <a asp-page="/QuestionLists/Create"
-               asp-route-questionUniqueId="@Model.Question.ID"
                asp-route-questionId="@Model.Question.QuestionID"
                asp-route-questionnaireId="@Model.Question.QuestionnaireID"
                asp-route-sectionId="@Model.Question.SectionID"
@@ -49,17 +48,14 @@
                                 <td>
                                     <a asp-page="/QuestionLists/Edit"
                                        asp-route-questionListId="@item.QuestionListID"
-                                       asp-route-questionnaireId="@item.QuestionnaireID"
-                                       asp-route-questionUniqueId="@Model.Question.ID"
                                        class="btn btn-sm btn-primary">Edit</a>
 
                                     <!-- Delete is its own form -->
                                     <form method="post"
                                           asp-page-handler="DeleteListItem"
                                           asp-route-questionListId="@item.QuestionListID"
-                                          asp-route-questionId="@item.QuestionID"
-                                          asp-route-questionnaireId="@item.QuestionnaireID"
-                                          asp-route-questionUniqueId="@Model.Question.ID"
+                                          asp-route-questionId="@Model.Question.QuestionID"
+                                          asp-route-questionnaireId="@Model.Question.QuestionnaireID"
                                           class="d-inline-block">
                                         <button type="submit" class="btn btn-sm btn-danger"
                                                 onclick="return confirm('Delete this item?');">

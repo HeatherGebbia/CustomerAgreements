@@ -38,7 +38,7 @@ namespace CustomerAgreements.Pages.DependentQuestions
             return Page();
         }        
 
-        public async Task<IActionResult> OnPostAsync(int questionId)
+        public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
@@ -47,7 +47,8 @@ namespace CustomerAgreements.Pages.DependentQuestions
             }
 
             try
-            {    
+            {
+                DependentQuestion.Text = DependentQuestion.DependentQuestionText;
                 _context.DependentQuestions.Add(DependentQuestion);
                 await _context.SaveChangesAsync();
 
@@ -63,13 +64,11 @@ namespace CustomerAgreements.Pages.DependentQuestions
                 {
                     return RedirectToPage("/DependentQuestions/Edit", new
                     {
-                        id = newDependentQuestionId,
-                        questionnaireId = DependentQuestion.QuestionnaireID,
-                        questionId = DependentQuestion.QuestionID
+                        dependentQuestionId = newDependentQuestionId
                     });
                 }                
 
-                return RedirectToPage("/Question/Edit", new { id = questionId });
+                return RedirectToPage("/QuestionLists/Edit", new { questionListId = DependentQuestion.QuestionListID });
             }
             catch (Exception ex)
             {

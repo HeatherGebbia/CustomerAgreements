@@ -26,22 +26,26 @@ namespace CustomerAgreements.Pages.QuestionLists
         [BindProperty]
         public QuestionList QuestionList { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int questionListId, int questionUniqueId, int questionnaireId)
+        public async Task<IActionResult> OnGetAsync(int questionListId)
         {
+            _logger.LogInformation($"User Viewed Question Lists edit page",
+                            User.Identity?.Name ?? "Anonymous",
+                            0,
+                            DateTime.UtcNow);
+
             QuestionList = await _context.QuestionLists
-                .FirstOrDefaultAsync(ql => ql.QuestionListID == questionListId
-                                        && ql.QuestionnaireID == questionnaireId);
+                .Include(q => q.DependentQuestions)
+                .FirstOrDefaultAsync(ql => ql.QuestionListID == questionListId);
 
             if (QuestionList == null)
             {
                 return NotFound();
             }
 
-            ViewData["QuestionUniqueId"] = questionUniqueId;
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int questionUniqueId)
+        public async Task<IActionResult> OnPostAsync(int questionId, int questionnaireId)
         {
             if (!ModelState.IsValid)
             {
@@ -59,8 +63,8 @@ namespace CustomerAgreements.Pages.QuestionLists
 
                 return RedirectToPage("/Questions/Edit", new
                 {
-                    id = questionUniqueId,
-                    questionnaireId = QuestionList.QuestionnaireID
+                    questionId,
+                    questionnaireId
                 });
 
             }
@@ -73,12 +77,45 @@ namespace CustomerAgreements.Pages.QuestionLists
                 return Page();
             }
 
-            return RedirectToPage("/Questions/Edit", new { id = QuestionList.QuestionID, questionnaireId = QuestionList.QuestionnaireID });
+            //return RedirectToPage("/Questions/Edit", new { id = QuestionList.QuestionID, questionnaireId = QuestionList.QuestionnaireID });
         }
 
-        private bool QuestionListExists(int id)
+        public async Task<IActionResult> OnPostDeleteDependentQuestionAsync(int dependentQuestionId, int questionListId)
         {
-            return _context.QuestionLists.Any(e => e.QuestionListID == id);
+            try
+            {
+                var dependentQuestion = await _context.DependentQuestions
+                    .Include(q => q.DependentQuestionLists)
+                    .FirstOrDefaultAsync(q => q.DependentQuestionID == dependentQuestionId);
+
+                if (dependentQuestion != null)
+                {
+                    // Delete child DependentQuestionLists first
+                    if (dependentQuestion.DependentQuestionLists != null && dependentQuestion.DependentQuestionLists.Any())
+                    {
+                        _context.DependentQuestionLists.RemoveRange(dependentQuestion.DependentQuestionLists);
+                    }
+
+                    // Delete parent Dependent Question
+                    _context.DependentQuestions.Remove(dependentQuestion);
+                    await _context.SaveChangesAsync();
+                }
+
+                _logger.LogInformation($"User {User} deleted dependent question {dependentQuestionId}",
+                User.Identity?.Name ?? "Anonymous",
+                dependentQuestionId,
+                DateTime.UtcNow);
+
+                return RedirectToPage(new { questionListId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting dependent question by user {User}: {Message}",
+                    User.Identity?.Name ?? "Anonymous",
+                    ex.Message);
+
+                return Page();
+            }
         }
     }
 }

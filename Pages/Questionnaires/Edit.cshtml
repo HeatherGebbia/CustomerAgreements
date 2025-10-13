@@ -20,7 +20,7 @@
                 <tr class="table-secondary">
                 <td>@s.Text</td>
                 <td>
-                    <a asp-page="/Sections/Edit" asp-route-id="@s.SectionID" class="btn btn-sm btn-primary">Edit</a>
+                        <a asp-page="/Sections/Edit" asp-route-sectionId="@s.SectionID" class="btn btn-sm btn-primary">Edit</a>
                         <form method="post" asp-page-handler="DeleteSection"
                               asp-route-sectionId="@s.SectionID"
                               asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID"
@@ -48,9 +48,9 @@
                                 @q.QuestionTitle
                             </td>
                             <td>
-                                <a asp-page="/Questions/Edit" asp-route-id="@q.ID" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID" class="btn btn-sm btn-primary">Edit</a>
+                                <a asp-page="/Questions/Edit" asp-route-questionId="@q.QuestionID" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID" class="btn btn-sm btn-primary">Edit</a>
                                 <form method="post" asp-page-handler="DeleteQuestion"
-                                      asp-route-questionId="@q.ID" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID"
+                                      asp-route-questionId="@q.QuestionID" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID"
                                       style="display:inline"
                                       onsubmit="return confirm('Deleting this Question will also delete all related Question Lists. Are you sure?');">
                                     <button type="submit" class="btn btn-sm btn-danger">

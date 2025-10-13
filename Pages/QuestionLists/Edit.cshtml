@@ -11,6 +11,67 @@
     <partial name="_QuestionListForm" model="Model.QuestionList" />
 </form>
 
+<!-- List items grid (separate from Save form) -->
+@if (Model.QuestionList.Conditional == true)
+{
+    <div id="conditionalRow" class="form-group d-flex align-items-start mt-4">
+        <div style="flex:0 0 20%; max-width:20%;" class="text-right pr-2">
+            <label class="p-2 d-block">Dependent Questions</label>
+            <a asp-page="/DependentQuestions/Create"
+               asp-route-questionListId="@Model.QuestionList.QuestionListID"
+               asp-route-questionId="@Model.QuestionList.QuestionID"
+               asp-route-questionnaireId="@Model.QuestionList.QuestionnaireID"
+               asp-route-sectionId="@Model.QuestionList.SectionID"
+               class="btn btn-link btn-sm p-0">
+                + Add Dependent Question
+            </a>
+        </div>
+
+        <div style="flex:1 0 auto; width:auto;">
+
+            @if (Model.QuestionList.DependentQuestions != null && Model.QuestionList.DependentQuestions.Any())
+            {
+                <table class="table table-bordered table-sm w-auto">
+                    <thead>
+                        <tr>
+                            <th>Dependent Question Title</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.QuestionList.DependentQuestions.OrderBy(i => i.SortOrder))
+                        {
+                            <tr>
+                                <td>@item.DependentQuestionTitle</td>
+                                <td>
+                                    <a asp-page="/DependentQuestions/Edit"
+                                       asp-route-dependentQuestionId="@item.DependentQuestionID"
+                                       class="btn btn-sm btn-primary">Edit</a>
+
+                                    <form method="post"
+                                          asp-page-handler="DeleteDependentQuestion"
+                                          asp-route-dependentQuestionId="@item.DependentQuestionID"
+                                          asp-route-questionListId="@Model.QuestionList.QuestionListID"
+                                          class="d-inline-block">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Delete this dependent question?');">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <em>No dependent questions yet. Please add a dependent question.</em>
+            }
+        </div>
+    </div>
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/questionListForm.js"></script>

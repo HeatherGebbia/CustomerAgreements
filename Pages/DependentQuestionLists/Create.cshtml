@@ -1,0 +1,15 @@
+﻿@page "{questionId:int}/{dependentQuestionId:int}/{questionnaireId:int}/{sectionId:int}"
+@model CustomerAgreements.Pages.DependentQuestionLists.CreateModel
+
+@{
+    ViewData["Title"] = "Create Dependent List Item";
+}
+
+<h1>Create Dependent List Item</h1>
+<form method="post">
+    <partial name="_DependentQuestionListForm" model="Model.DependentQuestionList" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -28,6 +28,11 @@ namespace CustomerAgreements.Pages.Questionnaires
         {
             try
             {
+                _logger.LogInformation($"User Viewed Questionnaires edit page",
+                            User.Identity?.Name ?? "Anonymous",
+                            0,
+                            DateTime.UtcNow);
+
                 Questionnaire = await _context.Questionnaires
                     .Include(q => q.Sections)
                         .ThenInclude(s => s.Questions)
@@ -129,7 +134,7 @@ namespace CustomerAgreements.Pages.Questionnaires
                     .Include(q => q.QuestionLists)
                     .Include(q => q.Section)
                         .ThenInclude(s => s.Questionnaire)
-                    .FirstOrDefaultAsync(q => q.ID == questionId
+                    .FirstOrDefaultAsync(q => q.QuestionID == questionId
                                            && q.QuestionnaireID == questionnaireId);
 
 

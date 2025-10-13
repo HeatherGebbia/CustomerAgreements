@@ -20,11 +20,11 @@ namespace CustomerAgreements.Models
         [Display(Name = "Dependent Question Title")]
         public string DependentQuestionTitle { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
-        [MaxLength(8000)]
+        //[Required(ErrorMessage = "Required")]
+        //[MaxLength(8000)]
         [Column("DependentQuestion")]
         [Display(Name = "Dependent Question")]
-        public string Text { get; set; } = string.Empty;
+        public string? Text { get; set; } 
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(4000)]
@@ -41,6 +41,9 @@ namespace CustomerAgreements.Models
 
         [Display(Name = "Sort Order")]
         public int SortOrder { get; set; }
+
+        // Navigation property 
+        public ICollection<DependentQuestionList> DependentQuestionLists { get; set; } = new List<DependentQuestionList>();
     }
 }
 

@@ -77,14 +77,14 @@ namespace CustomerAgreements.Pages.Questions
                             Question.QuestionID,
                             DateTime.UtcNow);
 
-                var newQuestionId = Question.ID;
+                var newQuestionId = Question.QuestionID;
                 var answerType = (Question.AnswerType ?? "").ToLower();
 
                 if (answerType.Contains("list"))
                 {
                     return RedirectToPage("/Questions/Edit", new
                     {
-                        id = newQuestionId,
+                        questionId = newQuestionId,
                         questionnaireId = Question.QuestionnaireID
                     });
                 }                

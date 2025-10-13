@@ -30,6 +30,9 @@ namespace CustomerAgreements.Models
         public bool SendEmail { get; set; }
 
         public int? NotificationID { get; set; }
+
+        // Navigation property 
+        public ICollection<DependentQuestion> DependentQuestions { get; set; } = new List<DependentQuestion>();
     }
 }
 

@@ -1,4 +1,4 @@
-﻿@page "{dependentQuestionId:int}/{questionId:int}"
+﻿@page "{dependentQuestionId:int}"
 @model CustomerAgreements.Pages.DependentQuestions.EditModel
 
 @{
@@ -12,15 +12,14 @@
 </form>
 
 <!-- List items grid (separate from Save form) -->
-@if (Model.DependentQuestion.AnswerType != null && Model.DependentQuestion.AnswerType.ToLower().Contains("list"))
+@if (Model.DependentQuestion.DependentAnswerType != null && Model.DependentQuestion.DependentAnswerType.ToLower().Contains("list"))
 {
     <div id="listItemsRow" class="form-group d-flex align-items-start mt-4">
         <div style="flex:0 0 15%; max-width:15%;" class="text-right pr-2">
             <label class="p-2 d-block">List Items</label>
             <a asp-page="/DependentQuestionLists/Create"
-               asp-route-dependentQuestionUniqueId="@Model.DependentQuestion.DependentQuestionID"
+               asp-route-dependentQuestionId="@Model.DependentQuestion.DependentQuestionID"
                asp-route-questionId="@Model.DependentQuestion.QuestionID"
-               asp-route-questionListId="@Model.DependentQuestion.QuestionListID"
                asp-route-questionnaireId="@Model.DependentQuestion.QuestionnaireID"
                asp-route-sectionId="@Model.DependentQuestion.SectionID"
                class="btn btn-link btn-sm p-0">
@@ -37,7 +36,6 @@
                     <thead>
                         <tr>
                             <th>List Item</th>
-                            <th>Conditional</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -46,23 +44,16 @@
                         {
                             <tr>
                                 <td>@item.ListValue</td>
-                                <td>@item.Conditional</td>
                                 <td>
                                     <a asp-page="/DependentQuestionLists/Edit"
-                                       asp-route-dependentQuestionId="@item.DependentQuestionID"
-                                       asp-route-questionListId="@item.QuestionListID"
-                                       asp-route-questionnaireId="@item.QuestionnaireID"
-                                       asp-route-questionUniqueId="@Model.Question.ID"
+                                       asp-route-dependentQuestionListId="@item.DependentQuestionListID"
                                        class="btn btn-sm btn-primary">Edit</a>
 
                                     <!-- Delete is its own form -->
                                     <form method="post"
                                           asp-page-handler="DeleteListItem"
-                                          asp-route-questionListId="@item.DependentQuestionListID"
-                                          asp-route-questionListId="@item.QuestionListID"
-                                          asp-route-questionId="@item.QuestionID"
-                                          asp-route-questionnaireId="@item.QuestionnaireID"
-                                          asp-route-questionUniqueId="@Model.Question.ID"
+                                          asp-route-dependentQuestionListId="@item.DependentQuestionListID"
+                                          asp-route-dependentQuestionId="@Model.DependentQuestion.DependentQuestionID"
                                           class="d-inline-block">
                                         <button type="submit" class="btn btn-sm btn-danger"
                                                 onclick="return confirm('Delete this item?');">
