@@ -29,6 +29,11 @@ namespace CustomerAgreements.Pages.Sections
         {
             try
             {
+                _logger.LogInformation($"User Viewed Sections edit page",
+                            User.Identity?.Name ?? "Anonymous",
+                            0,
+                            DateTime.UtcNow);
+
                 var section = await _context.Sections.FirstOrDefaultAsync(m => m.SectionID == sectionId);
                 if (section == null)
                 {

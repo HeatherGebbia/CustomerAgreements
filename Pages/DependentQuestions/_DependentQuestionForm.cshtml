@@ -42,9 +42,9 @@
 
 <br />
 <div class="d-flex flex-row">
-    <button type="submit" asp-page-handler="Save" asp-route-id="@Model.DependentQuestionID" class="btn btn-primary btn-sm">Save</button>
+    <button type="submit" asp-page-handler="Save" asp-route-dependentQuestionId="@Model.DependentQuestionID" class="btn btn-primary btn-sm">Save</button>
     <span>&nbsp;</span>
-    <a asp-page="/QuestionLists/Edit" asp-route-questionListId="@Model.QuestionListID" asp-route-questionUniqueId="@Model.QuestionID" asp-route-questionnaireId="@Model.QuestionnaireID" class="btn btn-secondary btn-sm">
+    <a asp-page="/QuestionLists/Edit" asp-route-questionListId="@Model.QuestionListID" class="btn btn-secondary btn-sm">
         Cancel
     </a>
 </div>

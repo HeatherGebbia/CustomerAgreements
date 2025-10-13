@@ -27,13 +27,18 @@ namespace CustomerAgreements.Pages.Questions
         [BindProperty]
         public Question Question { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int id, int questionnaireId)
-        {         
+        public async Task<IActionResult> OnGetAsync(int questionId, int questionnaireId)
+        {
+            _logger.LogInformation($"User Viewed Questions edit page",
+                            User.Identity?.Name ?? "Anonymous",
+                            0,
+                            DateTime.UtcNow);
+
             Question = await _context.Questions
             .Include(q => q.Section)
                 .ThenInclude(s => s.Questionnaire)
             .Include(q => q.QuestionLists)
-            .FirstOrDefaultAsync(q => q.ID == id
+            .FirstOrDefaultAsync(q => q.QuestionID == questionId
                                    && q.QuestionnaireID == questionnaireId);
 
 
@@ -46,7 +51,7 @@ namespace CustomerAgreements.Pages.Questions
             return Page();
         }
 
-        public async Task<IActionResult> OnPostSaveAsync(int id)
+        public async Task<IActionResult> OnPostSaveAsync(int questionId, int questionnaireId)
         {
             if (!ModelState.IsValid)
             {
@@ -58,7 +63,8 @@ namespace CustomerAgreements.Pages.Questions
             {
                 var existingQuestion = await _context.Questions
                 .Include(q => q.Section)
-                .FirstOrDefaultAsync(q => q.ID == id);
+                .FirstOrDefaultAsync(q => q.QuestionID == questionId
+                                   && q.QuestionnaireID == questionnaireId);
 
                 if (existingQuestion == null)
                 {
@@ -86,13 +92,13 @@ namespace CustomerAgreements.Pages.Questions
                 {
                     return RedirectToPage("/Questions/Edit", new
                     {
-                        id = id,
-                        questionnaireId = Question.QuestionnaireID
+                        questionId,
+                        questionnaireId
                     });
                 }
                 else
                 {
-                    return RedirectToPage("/Questionnaires/Edit", new { id = existingQuestion.QuestionnaireID });
+                    return RedirectToPage("/Questionnaires/Edit", new { id = questionnaireId });
                 }                
             }
             catch (Exception ex)
@@ -105,7 +111,7 @@ namespace CustomerAgreements.Pages.Questions
             }            
         }
 
-        public async Task<IActionResult> OnPostDeleteListItemAsync(int questionListId, int questionId, int questionnaireId, int questionUniqueId)
+        public async Task<IActionResult> OnPostDeleteListItemAsync(int questionListId, int questionId, int questionnaireId)
         {
             try
             {
@@ -122,7 +128,7 @@ namespace CustomerAgreements.Pages.Questions
                 questionListId,
                 DateTime.UtcNow);
 
-                return RedirectToPage(new { id = questionUniqueId, questionnaireId = questionnaireId });
+                return RedirectToPage(new { questionId, questionnaireId });
             }
             catch (Exception ex)
             {

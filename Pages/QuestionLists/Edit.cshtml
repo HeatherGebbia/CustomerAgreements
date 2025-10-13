@@ -1,4 +1,4 @@
-﻿@page "{questionListId:int}/{questionUniqueId:int}/{questionnaireId:int}"
+﻿@page "{questionListId:int}"
 @model CustomerAgreements.Pages.QuestionLists.EditModel
 
 @{
@@ -19,7 +19,7 @@
             <label class="p-2 d-block">Dependent Questions</label>
             <a asp-page="/DependentQuestions/Create"
                asp-route-questionListId="@Model.QuestionList.QuestionListID"
-               asp-route-questionUniqueId="@Model.QuestionList.QuestionID"
+               asp-route-questionId="@Model.QuestionList.QuestionID"
                asp-route-questionnaireId="@Model.QuestionList.QuestionnaireID"
                asp-route-sectionId="@Model.QuestionList.SectionID"
                class="btn btn-link btn-sm p-0">
@@ -51,9 +51,7 @@
                                     <form method="post"
                                           asp-page-handler="DeleteDependentQuestion"
                                           asp-route-dependentQuestionId="@item.DependentQuestionID"
-                                          asp-route-questionListId="@item.QuestionListID"
-                                          asp-route-questionUniqueId="@item.QuestionID"
-                                          asp-route-questionnaireId="@item.QuestionnaireID"
+                                          asp-route-questionListId="@Model.QuestionList.QuestionListID"
                                           class="d-inline-block">
                                         <button type="submit" class="btn btn-sm btn-danger"
                                                 onclick="return confirm('Delete this dependent question?');">

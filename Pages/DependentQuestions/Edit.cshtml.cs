@@ -29,6 +29,11 @@ namespace CustomerAgreements.Pages.DependentQuestions
 
         public async Task<IActionResult> OnGetAsync(int dependentQuestionId)
         {
+            _logger.LogInformation($"User Viewed Dependent Questions edit page",
+                            User.Identity?.Name ?? "Anonymous",
+                            0,
+                            DateTime.UtcNow);
+
             DependentQuestion = await _context.DependentQuestions
                 .Include(dq => dq.DependentQuestionLists)
             .FirstOrDefaultAsync(q => q.DependentQuestionID == dependentQuestionId);
@@ -86,7 +91,7 @@ namespace CustomerAgreements.Pages.DependentQuestions
                 }
                 else
                 {
-                    return RedirectToPage("/QuestionLists/Edit", new { questionListId = existingDependentQuestion.QuestionListID, questionUniqueId = existingDependentQuestion.QuestionID, questionnaireId = existingDependentQuestion.QuestionnaireID });
+                    return RedirectToPage("/QuestionLists/Edit", new { questionListId = existingDependentQuestion.QuestionListID });
                 }                
             }
             catch (Exception ex)
@@ -116,7 +121,7 @@ namespace CustomerAgreements.Pages.DependentQuestions
                 dependentQuestionListId,
                 DateTime.UtcNow);
 
-                return RedirectToPage(new { dependentQuestionId = dependentQuestionId });
+                return RedirectToPage(new { dependentQuestionId });
             }
             catch (Exception ex)
             {

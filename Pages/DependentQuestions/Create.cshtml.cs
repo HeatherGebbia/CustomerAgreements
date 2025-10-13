@@ -24,13 +24,13 @@ namespace CustomerAgreements.Pages.DependentQuestions
         [BindProperty]
         public DependentQuestion DependentQuestion { get; set; } = new DependentQuestion();
 
-        public IActionResult OnGet(int sectionId, int questionnaireId, int questionUniqueId, int questionListId)
+        public IActionResult OnGet(int sectionId, int questionnaireId, int questionId, int questionListId)
         {
             DependentQuestion = new DependentQuestion
             {
                 SectionID = sectionId,
                 QuestionnaireID = questionnaireId,
-                QuestionID = questionUniqueId,
+                QuestionID = questionId,
                 QuestionListID = questionListId,
             };
 
@@ -68,7 +68,7 @@ namespace CustomerAgreements.Pages.DependentQuestions
                     });
                 }                
 
-                return RedirectToPage("/QuestionLists/Edit", new { questionListId = DependentQuestion.QuestionListID, questionUniqueId = DependentQuestion.QuestionID, questionnaireId = DependentQuestion.QuestionnaireID });
+                return RedirectToPage("/QuestionLists/Edit", new { questionListId = DependentQuestion.QuestionListID });
             }
             catch (Exception ex)
             {

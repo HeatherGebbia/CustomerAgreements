@@ -1,0 +1,17 @@
+﻿@page "{dependentQuestionListID:int}"
+@model CustomerAgreements.Pages.DependentQuestionLists.EditModel
+
+@{
+    ViewData["Title"] = "Edit Dependent List Item";
+}
+
+<h1>Edit Dependent List Item</h1>
+
+<form method="post">
+    <partial name="_DependentQuestionListForm" model="Model.DependentQuestionList" />
+</form>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
