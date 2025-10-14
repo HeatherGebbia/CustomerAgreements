@@ -41,3 +41,14 @@ body {
     color: white;
     font-weight: bold;
 }
+
+.dependent-question {
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+    overflow: hidden;
+    opacity: 0;
+    max-height: 0;
+}
+
+.table td {
+    vertical-align: top !important;
+}

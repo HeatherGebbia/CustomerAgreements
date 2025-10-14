@@ -38,6 +38,8 @@ namespace CustomerAgreements.Pages.Agreements
                 FormModel.Questionnaire = await _context.Questionnaires
                     .Include(q => q.Sections)
                         .ThenInclude(s => s.Questions)
+                        .ThenInclude(ql => ql.QuestionLists)
+                        .ThenInclude(dq => dq.DependentQuestions)
                     .FirstOrDefaultAsync(q => q.QuestionnaireID == questionnaireId)
                     ?? new Questionnaire();
 
