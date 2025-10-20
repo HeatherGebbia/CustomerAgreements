@@ -1,0 +1,32 @@
+﻿@page "{questionnaireId:int}/{agreementId:int}"
+@model CustomerAgreements.Pages.Agreements.EditModel
+
+<form method="post">
+    @if (!string.IsNullOrEmpty(Model.Instructions))
+    {
+        <div class="alert alert-primary text-center mb-4">
+            @Model.Instructions
+        </div>
+    }
+
+    <div class="form-group d-flex">
+        <input type="checkbox" asp-for="@Model.Agreement.ReadPrivacyPolicy" value="false" id="ReadPrivacyPolicy" />
+        &nbsp;@Model.Acknowledgement
+        <span asp-validation-for="@Model.Agreement.ReadPrivacyPolicy" class="text-danger"></span>
+    </div>
+
+    <partial name="_AgreementForm" model="Model.FormModel" />
+</form>
+
+<div class="d-flex flex-row">
+    <button type="submit" asp-page-handler="Save" class="btn btn-primary btn-sm">Save</button>
+    <span>&nbsp;</span>
+    <button type="submit" asp-page-handler="Submit" class="btn btn-primary btn-sm">Submit</button>
+    <span>&nbsp;</span>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/agreementForm.js"></script>
+}
