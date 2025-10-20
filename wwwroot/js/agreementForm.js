@@ -1,17 +1,14 @@
-﻿// Clear saved dependents when leaving or reloading the page
-window.addEventListener("beforeunload", function () {
+﻿// Clear saved dependents when leaving or refreshing
+window.addEventListener("beforeunload", () => {
     localStorage.removeItem("expandedDependents");
 });
 
-// Restore all previously expanded dependents on page load
-window.addEventListener("load", function () {
-    const savedDependents = JSON.parse(localStorage.getItem("expandedDependents") || "[]");
-
-    savedDependents.forEach(depId => {
+// Restore expanded dependents on load
+window.addEventListener("load", () => {
+    const saved = JSON.parse(localStorage.getItem("expandedDependents") || "[]");
+    saved.forEach(depId => {
         const depDiv = document.getElementById(depId);
-        const radio = document.querySelector(`[data-dependentid='${depId}']`);
-        if (depDiv && radio) {
-            radio.checked = true;
+        if (depDiv) {
             depDiv.style.display = "block";
             depDiv.style.maxHeight = depDiv.scrollHeight + "px";
             depDiv.style.opacity = "1";
@@ -19,60 +16,78 @@ window.addEventListener("load", function () {
     });
 });
 
-document.addEventListener("click", function (event) {
-    const radio = event.target.closest("input[type='radio']");
-    if (!radio) return;
+// Listen for change events on radios, checkboxes, and dropdowns
+document.addEventListener("change", event => {
+    const input = event.target;
+    if (!input.matches("input[type='radio'], input[type='checkbox'], select")) return;
 
-    const questionGroup = radio.name;
-    const depIdToShow = radio.dataset.dependentid;
+    let depIdToShow = null;
+    let isConditional = false;
+    let expanded = JSON.parse(localStorage.getItem("expandedDependents") || "[]");
 
-    // Load current list of open dependents
-    let expandedDependents = JSON.parse(localStorage.getItem("expandedDependents") || "[]");
+    if (input.tagName.toLowerCase() === "select") {
+        const opt = input.selectedOptions[0];
+        if (!opt) return;
 
-    // Hide dependents belonging only to *this* radio group
-    document.querySelectorAll(`[name='${questionGroup}']`).forEach(r => {
-        const depId = r.getAttribute("data-dependentid");
-        const depDiv = depId && document.getElementById(depId);
-        if (depDiv && depId !== depIdToShow) {
-            depDiv.style.transition = "max-height 0.4s ease, opacity 0.4s ease";
-            depDiv.style.overflow = "hidden";
-            depDiv.style.maxHeight = "0";
-            depDiv.style.opacity = "0";
-            setTimeout(() => depDiv.style.display = "none", 400);
+        depIdToShow = opt.dataset.dependentid;
+        isConditional = opt.dataset.conditional === "true";
 
-            // Remove this one from the persisted list
-            expandedDependents = expandedDependents.filter(id => id !== depId);
+        // Hide all dependents for this select EXCEPT the currently selected one
+        input.querySelectorAll("option").forEach(o => {
+            const depDiv = o.dataset.dependentid && document.getElementById(o.dataset.dependentid);
+            if (depDiv && o !== opt) {
+                depDiv.style.maxHeight = "0";
+                depDiv.style.opacity = "0";
+                setTimeout(() => depDiv.style.display = "none", 300);
+                expanded = expanded.filter(id => id !== o.dataset.dependentid);
+            }
+        });
+    }
+    else if (input.type === "radio") {
+        depIdToShow = input.dataset.dependentid;
+        isConditional = input.dataset.conditional === "true";
+
+        document.querySelectorAll(`[name='${input.name}']`).forEach(r => {
+            const depDiv = r.dataset.dependentid && document.getElementById(r.dataset.dependentid);
+            if (depDiv && r !== input) {
+                depDiv.style.maxHeight = "0";
+                depDiv.style.opacity = "0";
+                setTimeout(() => depDiv.style.display = "none", 300);
+                expanded = expanded.filter(id => id !== r.dataset.dependentid);
+            }
+        });
+    }
+    else if (input.type === "checkbox") {
+        depIdToShow = input.dataset.dependentid;
+        isConditional = input.dataset.conditional === "true";
+
+        // Check or uncheck toggle for checkbox dependents
+        if (depIdToShow) {
+            const depDiv = document.getElementById(depIdToShow);
+            if (input.checked && isConditional) {
+                depDiv.style.display = "block";
+                depDiv.style.maxHeight = depDiv.scrollHeight + "px";
+                depDiv.style.opacity = "1";
+                if (!expanded.includes(depIdToShow)) expanded.push(depIdToShow);
+            } else {
+                depDiv.style.maxHeight = "0";
+                depDiv.style.opacity = "0";
+                setTimeout(() => depDiv.style.display = "none", 300);
+                expanded = expanded.filter(id => id !== depIdToShow);
+            }
         }
-    });
+    }
 
-    // Show the dependent if this option is conditional
-    if (radio.dataset.conditional === "true") {
+    // Show dependent (radio/select) if applicable
+    if (isConditional && depIdToShow && (input.type === "radio" || input.tagName.toLowerCase() === "select")) {
         const depDiv = document.getElementById(depIdToShow);
         if (depDiv) {
             depDiv.style.display = "block";
-            depDiv.style.overflow = "hidden";
-            depDiv.style.maxHeight = "0";
-            depDiv.style.opacity = "0";
-
-            setTimeout(() => {
-                depDiv.style.transition = "max-height 0.4s ease, opacity 0.4s ease";
-                depDiv.style.maxHeight = depDiv.scrollHeight + "px";
-                depDiv.style.opacity = "1";
-            }, 10);
-
-            // Track it as open
-            if (!expandedDependents.includes(depIdToShow)) {
-                expandedDependents.push(depIdToShow);
-            }
+            depDiv.style.maxHeight = depDiv.scrollHeight + "px";
+            depDiv.style.opacity = "1";
+            if (!expanded.includes(depIdToShow)) expanded.push(depIdToShow);
         }
-    } else {
-        // Non-conditional radio → collapse and clear any stored for this group
-        expandedDependents = expandedDependents.filter(id => {
-            const element = document.querySelector(`[data-dependentid='${id}']`);
-            return element && element.name !== questionGroup;
-        });
     }
 
-    // Save updated list of open dependents
-    localStorage.setItem("expandedDependents", JSON.stringify(expandedDependents));
+    localStorage.setItem("expandedDependents", JSON.stringify(expanded));
 });

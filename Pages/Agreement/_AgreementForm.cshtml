@@ -60,41 +60,7 @@
                                             @($"{questionNo}. {q.Text}")
                                         </td>
                                         <td style="vertical-align: top;">
-                                            @if (q.AnswerType == "Radio Button List")
-                                                {
-                                                    <div class="d-flex flex-wrap gap-3 align-items-baseline">
-                                                        @foreach (var ql in q.QuestionLists.OrderBy(ql => ql.SortOrder))
-                                                        {
-                                                            <div class="form-check form-check-inline">
-                                                                <input type="radio"
-                                                                       class="form-check-input"
-                                                                       name="question_@q.QuestionID"
-                                                                       id="option_@ql.QuestionListID"
-                                                                       value="@ql.ListValue"
-                                                                       @(q.IsRequired ? "Required" : null)
-                                                                       data-conditional="@ql.Conditional.ToString().ToLower()"
-                                                                       data-dependentid="dependent_@ql.QuestionListID" />
-
-                                                                <label class="form-check-label" for="option_@ql.QuestionListID">
-                                                                    @ql.ListValue
-                                                                </label>
-                                                            </div>      
-                                                        }
-                                                    </div>
-                                                    <!-- Dependent questions (rendered once per conditional list item) -->
-                                                    @foreach (var ql in q.QuestionLists.Where(ql => ql.Conditional))
-                                                    {
-                                                        <div id="dependent_@ql.QuestionListID" class="dependent-question mt-2 ms-4" style="display:none;">
-                                                            @foreach (var dq in ql.DependentQuestions.OrderBy(dq => dq.SortOrder))
-                                                            {
-                                                                <div class="mb-2">
-                                                                    <label class="fw-semibold">@dq.Text</label>
-                                                                    <input type="text" class="form-control w-75" />
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    }
-                                                }
+                                            <partial name="_RenderQuestionType" model="q" />
                                         </td>
                                     </tr>
                                     questionNo++;
