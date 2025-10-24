@@ -16,15 +16,14 @@
     </div>
 
     <partial name="_AgreementForm" model="Model.FormModel" />
+
+    <div class="d-flex flex-row">
+        <button type="submit" asp-page-handler="Save" class="btn btn-primary btn-sm">Save</button>
+        <span>&nbsp;</span>
+        <button type="submit" asp-page-handler="Submit" class="btn btn-primary btn-sm">Submit</button>
+        <span>&nbsp;</span>
+    </div>
 </form>
-
-<div class="d-flex flex-row">
-    <button type="submit" asp-page-handler="Save" class="btn btn-primary btn-sm">Save</button>
-    <span>&nbsp;</span>
-    <button type="submit" asp-page-handler="Submit" class="btn btn-primary btn-sm">Submit</button>
-    <span>&nbsp;</span>
-</div>
-
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

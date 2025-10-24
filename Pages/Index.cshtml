@@ -31,7 +31,6 @@
                 Company Name
             </option>
         </select>
-
     </form>
 </div>
 
@@ -40,7 +39,7 @@
     <p><em>No customers found.</em></p>
 }
 else
-{
+{    
     <table class="table table-striped">
         <thead>
             <tr>
@@ -60,4 +59,8 @@ else
             }
         </tbody>
     </table>
+    <br />
+    <a class="btn btn-primary btn-sm" asp-page="/Agreement/Create" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID">
+        Test Creating New Agreement
+    </a>
 }

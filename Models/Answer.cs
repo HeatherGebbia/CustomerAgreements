@@ -22,13 +22,17 @@ namespace CustomerAgreements.Models
         public string Text { get; set; } = string.Empty;
 
         [DisplayFormat(DataFormatString = "{0:MM-dd-yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime DateAnswer { get; set; } 
+        [Column(TypeName = "datetime2")]
+        public DateTime? DateAnswer { get; set; }
 
         [ForeignKey("AgreementID")]
         public Agreement? Agreement { get; set; }
 
         [ForeignKey("QuestionID")]
         public Question? Question { get; set; }
+
+        // Navigation property 
+        public ICollection<DependentAnswer> DependentAnswers { get; set; } = new List<DependentAnswer>();
     }
 }
 

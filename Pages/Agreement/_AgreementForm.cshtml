@@ -11,29 +11,43 @@
             </tr>
 
             <!-- Each row stacks vertically on small screens -->
-            <tr class="d-block d-md-table-row">
-                <td class="fw-semibold text-start d-block d-md-table-cell w-25">Customer ID</td>
-                <td class="text-start d-block d-md-table-cell w-75">@Model.Agreement.CustomerID</td>
-            </tr>
+            @if (Model.Agreement.CustomerID > 0)
+            {
+                <tr class="d-block d-md-table-row">
+                    <td class="fw-semibold text-start d-block d-md-table-cell">Customer ID</td>
+                    <td class="text-start d-block d-md-table-cell">@Model.Agreement.CustomerID</td>
+                </tr>
+            }            
+
+            @if (Model.Agreement.AgreementID > 0)
+            {
+                <tr class="d-block d-md-table-row">
+                    <td class="fw-semibold text-start d-block d-md-table-cell">Agreement ID</td>
+                    <td class="text-start d-block d-md-table-cell">@Model.Agreement.AgreementID</td>
+                </tr>
+            }            
 
             <tr class="d-block d-md-table-row">
-                <td class="fw-semibold text-start d-block d-md-table-cell">Agreement ID</td>
-                <td class="text-start d-block d-md-table-cell">@Model.Agreement.AgreementID</td>
-            </tr>
-
-            <tr class="d-block d-md-table-row">
-                <td class="fw-semibold text-start d-block d-md-table-cell">Customer Name</td>
-                <td class="text-start d-block d-md-table-cell">
-                    <input asp-for="Agreement.CustomerName" class="form-control w-100" />
-                    <span asp-validation-for="Agreement.CustomerName" class="text-danger"></span>
+                <td class="fw-semibold text-start d-block d-md-table-cell w-25 required-label">Company Name</td>
+                <td class="text-start d-block d-md-table-cell w-75">
+                    <input asp-for="@Model.Customer.CompanyName" class="form-control w-100" />
+                    <span asp-validation-for="@Model.Customer.CompanyName" class="text-danger"></span>
                 </td>
             </tr>
 
             <tr class="d-block d-md-table-row">
-                <td class="fw-semibold text-start d-block d-md-table-cell">Email</td>
+                <td class="fw-semibold text-start d-block d-md-table-cell required-label">Contact Name</td>
                 <td class="text-start d-block d-md-table-cell">
-                    <input asp-for="Agreement.CustomerEmail" class="form-control w-100" />
-                    <span asp-validation-for="Agreement.CustomerEmail" class="text-danger"></span>
+                    <input asp-for="@Model.Customer.ContactName" class="form-control w-100" />
+                    <span asp-validation-for="@Model.Customer.ContactName" class="text-danger"></span>
+                </td>
+            </tr>
+
+            <tr class="d-block d-md-table-row">
+                <td class="fw-semibold text-start d-block d-md-table-cell required-label">Email</td>
+                <td class="text-start d-block d-md-table-cell">
+                    <input asp-for="@Model.Customer.EmailAddress" class="form-control w-100" />
+                    <span asp-validation-for="@Model.Customer.EmailAddress" class="text-danger"></span>
                 </td>
             </tr>
 
@@ -57,7 +71,7 @@
                                 {
                                     <tr>
                                         <td>
-                                            @($"{questionNo}. {q.Text}")
+                                    <label class="fw-semibold @(q.IsRequired ? "required-label" : "")">@($"{questionNo}. {q.Text}")</label>
                                         </td>
                                         <td style="vertical-align: top;">
                                             <partial name="_RenderQuestionType" model="q" />
@@ -68,7 +82,7 @@
                         }
                 }
             }
+
                 </tbody>
     </table>
 </div>
-

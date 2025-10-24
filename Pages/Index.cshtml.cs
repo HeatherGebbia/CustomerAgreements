@@ -37,12 +37,18 @@ namespace CustomerAgreements.Pages
         [BindProperty(SupportsGet = true)]
         public string SelectedCompanyName { get; set; }
 
+        [BindProperty]
+        public Questionnaire Questionnaire { get; set; } = default!;
+
         public async Task OnGetAsync()
         {
             _logger.LogInformation($"User Viewed Core Site",
                             User.Identity?.Name ?? "Anonymous",
                             0,
                             DateTime.UtcNow);
+
+            Questionnaire = await _context.Questionnaires
+                .FirstOrDefaultAsync(q => q.Status == "Active");
 
             var customers = from c in _context.Customers
                             select c;

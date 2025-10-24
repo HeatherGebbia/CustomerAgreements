@@ -12,6 +12,15 @@ window.addEventListener("load", () => {
             depDiv.style.display = "block";
             depDiv.style.maxHeight = depDiv.scrollHeight + "px";
             depDiv.style.opacity = "1";
+
+            // Re-enable inputs when showing dependent and trigger revalidation
+            depDiv.querySelectorAll("input, select, textarea").forEach(el => {
+                el.disabled = false;
+                if (el.hasAttribute("required")) {
+                    el.reportValidity(); // force browser to recheck immediately
+                }
+            });
+
         }
     });
 });
@@ -38,7 +47,11 @@ document.addEventListener("change", event => {
             if (depDiv && o !== opt) {
                 depDiv.style.maxHeight = "0";
                 depDiv.style.opacity = "0";
-                setTimeout(() => depDiv.style.display = "none", 300);
+                setTimeout(() => {
+                    depDiv.style.display = "none";
+                    // Disable inputs so browser ignores hidden fields
+                    depDiv.querySelectorAll("input, select, textarea").forEach(el => el.disabled = true);
+                }, 300);
                 expanded = expanded.filter(id => id !== o.dataset.dependentid);
             }
         });
@@ -52,7 +65,11 @@ document.addEventListener("change", event => {
             if (depDiv && r !== input) {
                 depDiv.style.maxHeight = "0";
                 depDiv.style.opacity = "0";
-                setTimeout(() => depDiv.style.display = "none", 300);
+                setTimeout(() => {
+                    depDiv.style.display = "none";
+                    // Disable inputs in hidden dependent
+                    depDiv.querySelectorAll("input, select, textarea").forEach(el => el.disabled = true);
+                }, 300);
                 expanded = expanded.filter(id => id !== r.dataset.dependentid);
             }
         });
@@ -64,15 +81,29 @@ document.addEventListener("change", event => {
         // Check or uncheck toggle for checkbox dependents
         if (depIdToShow) {
             const depDiv = document.getElementById(depIdToShow);
+            if (!depDiv) return;
             if (input.checked && isConditional) {
                 depDiv.style.display = "block";
                 depDiv.style.maxHeight = depDiv.scrollHeight + "px";
                 depDiv.style.opacity = "1";
+
+                // Re-enable inputs when showing dependent and trigger revalidation
+                depDiv.querySelectorAll("input, select, textarea").forEach(el => {
+                    el.disabled = false;
+                    if (el.hasAttribute("required")) {
+                        el.reportValidity(); // force browser to recheck immediately
+                    }
+                });
+
                 if (!expanded.includes(depIdToShow)) expanded.push(depIdToShow);
             } else {
                 depDiv.style.maxHeight = "0";
                 depDiv.style.opacity = "0";
-                setTimeout(() => depDiv.style.display = "none", 300);
+                setTimeout(() => {
+                    depDiv.style.display = "none";
+                    // Disable inputs when hiding
+                    depDiv.querySelectorAll("input, select, textarea").forEach(el => el.disabled = true);
+                }, 300);
                 expanded = expanded.filter(id => id !== depIdToShow);
             }
         }
@@ -85,9 +116,143 @@ document.addEventListener("change", event => {
             depDiv.style.display = "block";
             depDiv.style.maxHeight = depDiv.scrollHeight + "px";
             depDiv.style.opacity = "1";
+
+            // Re-enable inputs when showing dependent and trigger revalidation
+            depDiv.querySelectorAll("input, select, textarea").forEach(el => {
+                el.disabled = false;
+                if (el.hasAttribute("required")) {
+                    el.reportValidity(); // force browser to recheck immediately
+                }
+            });
+
             if (!expanded.includes(depIdToShow)) expanded.push(depIdToShow);
         }
     }
 
     localStorage.setItem("expandedDependents", JSON.stringify(expanded));
 });
+
+window.addEventListener("load", () => {
+    document.querySelectorAll("form").forEach(form => {
+        //form.addEventListener("submit", (e) => {
+        //    form.classList.add("submitted");
+
+        //    // 1) Sync ALL dependents to visibility before validating
+        //    form.querySelectorAll(".dependent-question").forEach(dep => {
+        //        const visible =
+        //            dep.offsetParent !== null &&           // not display:none or detached
+        //            getComputedStyle(dep).display !== "none" &&
+        //            getComputedStyle(dep).visibility !== "hidden" &&
+        //            dep.style.maxHeight !== "0px";         // your collapse style
+
+        //        dep.querySelectorAll("input, select, textarea").forEach(el => {
+        //            el.disabled = !visible;                // hidden => disabled, visible => enabled
+        //        });
+        //    });
+
+        //    // 2) Checkbox groups: enforce "at least one" (not all)
+        //    const checkboxGroups = {};
+        //    form.querySelectorAll("input[type='checkbox'][name]").forEach(cb => {
+        //        // Only consider visible+enabled checkboxes
+        //        const visible = cb.offsetParent !== null && !cb.disabled;
+        //        if (!visible) return;
+        //        (checkboxGroups[cb.name] ||= []).push(cb);
+        //    });
+
+        //    Object.values(checkboxGroups).forEach(group => {
+        //        const anyChecked = group.some(cb => cb.checked);
+        //        // If none checked, make only the first visible one required; otherwise none required
+        //        group.forEach((cb, idx) => cb.required = !anyChecked && idx === 0);
+        //    });
+
+        //    // 3) Final validity gate
+        //    if (!form.checkValidity()) {
+        //        e.preventDefault();
+        //        form.reportValidity();
+        //    }
+        //});
+
+        form.addEventListener("submit", (e) => {
+            const action = e.submitter?.value; // "Save" or "Submit"
+
+            // Always mark as submitted so "Required" messages appear if needed
+            form.classList.add("submitted");
+
+            // --- Only enforce full validation if the user clicked Submit ---
+            if (action === "Submit") {
+                // 1) Sync ALL dependents before validating
+                form.querySelectorAll(".dependent-question").forEach(dep => {
+                    const visible =
+                        dep.offsetParent !== null &&
+                        getComputedStyle(dep).display !== "none" &&
+                        getComputedStyle(dep).visibility !== "hidden" &&
+                        dep.style.maxHeight !== "0px";
+
+                    dep.querySelectorAll("input, select, textarea").forEach(el => {
+                        el.disabled = !visible;
+                    });
+                });
+
+                // 2) Checkbox groups: enforce "at least one" (not all)
+                const checkboxGroups = {};
+                form.querySelectorAll("input[type='checkbox'][name]").forEach(cb => {
+                    const visible = cb.offsetParent !== null && !cb.disabled;
+                    if (!visible) return;
+                    (checkboxGroups[cb.name] ||= []).push(cb);
+                });
+
+                Object.values(checkboxGroups).forEach(group => {
+                    const anyChecked = group.some(cb => cb.checked);
+                    group.forEach((cb, idx) => cb.required = !anyChecked && idx === 0);
+                });
+
+                // 3) Final validity check (only for Submit)
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    form.reportValidity();
+                }
+            }
+            else if (action === "Save") {
+                // Disable required attributes except customer info before saving
+                form.querySelectorAll("[required]").forEach(el => {
+                    if (
+                        !el.name.includes("Customer.CompanyName") &&
+                        !el.name.includes("Customer.ContactName") &&
+                        !el.name.includes("Customer.EmailAddress")
+                    ) {
+                        el.removeAttribute("required");
+                    }
+                });
+            }
+        });
+
+        // Keep showing "Required" hints on any native invalid event
+        form.addEventListener("invalid", () => form.classList.add("submitted"), true);
+    });
+});
+
+// Watch all required fields and hide "Required" message once valid 
+window.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("input", handleValidationFeedback);
+    document.addEventListener("change", handleValidationFeedback);
+
+    function handleValidationFeedback(event) {
+        const el = event.target;
+        if (!el.matches("input, textarea, select")) return;
+
+        const container = el.closest(".mb-2");
+        if (!container) return;
+        const message = container.querySelector(".required-message");
+
+        if (message) {
+            if (el.checkValidity()) {
+                message.style.display = "none";
+            } else if (document.querySelector("form.submitted")) {
+                message.style.display = "block";
+            } else {
+                message.style.display = "none";
+            }
+        }
+    }
+});
+

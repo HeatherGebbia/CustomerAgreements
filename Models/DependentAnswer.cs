@@ -24,7 +24,8 @@ namespace CustomerAgreements.Models
         public string Answer { get; set; } = string.Empty;
 
         [DisplayFormat(DataFormatString = "{0:MM-dd-yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime DateAnswer { get; set; } 
+        [Column(TypeName = "datetime2")]
+        public DateTime? DateAnswer { get; set; }
 
     }
 }

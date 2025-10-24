@@ -8,11 +8,19 @@
     @switch (q.AnswerType)
     {
         case "Single-line Textbox":
-            <input type="text" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            <input type="text" name="question_@q.QuestionID" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
             break;
 
         case "Multi-line Textbox":
-            <textarea class="form-control w-75" rows="3" @(q.IsRequired ? "required" : null)></textarea>
+            <textarea class="form-control w-75" name="question_@q.QuestionID" rows="3" @(q.IsRequired ? "required" : null)></textarea>
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
             break;
 
         case "Radio Button List":
@@ -32,9 +40,13 @@
                         <label class="form-check-label" for="option_@ql.QuestionListID">
                             @ql.ListValue
                         </label>
-                    </div>
+                    </div>                    
                 }
             </div>
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
 
             <!-- Render dependents, if any -->
             @foreach (var ql in q.QuestionLists.Where(ql => ql.Conditional))
@@ -70,6 +82,10 @@
                     </div>
                 }
             </div>
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
 
             <!-- Render dependents, if any -->
             @foreach (var ql in q.QuestionLists.Where(ql => ql.Conditional))
@@ -87,7 +103,7 @@
             break;
 
         case "Drop Down List":
-            <select class="form-select w-75" @(q.IsRequired ? "required" : null)>
+            <select name="question_@q.QuestionID" class="form-select w-75" @(q.IsRequired ? "required" : null)>
                 <option value="">-- Select One --</option>
                 @foreach (var ql in q.QuestionLists.OrderBy(ql => ql.SortOrder))
                 {
@@ -97,8 +113,12 @@
                         @ql.ListValue
                     </option>
 
-                }
+                }                
             </select>
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
 
             <!-- Render dependents, if any -->
             @foreach (var ql in q.QuestionLists.Where(ql => ql.Conditional))
@@ -115,7 +135,11 @@
             break;
 
         case "Date":
-            <input type="date" class="form-control w-25" @(q.IsRequired ? "required" : null) />
+            <input type="date" name="question_@q.QuestionID" class="form-control w-25" @(q.IsRequired ? "required" : null) />
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
             break;
 
         case "Single Checkbox":
@@ -127,10 +151,14 @@
                        value="true"
                        @(q.IsRequired ? "required" : null) />
             </div>
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
             break;
 
         default:
-            <input type="text" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            <input type="text" name="question_@q.QuestionID" class="form-control w-75" @(q.IsRequired ? "required" : null) />
             break;
     }
 </div>
