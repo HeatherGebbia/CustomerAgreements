@@ -179,7 +179,7 @@ namespace CustomerAgreements.Pages.Agreements
                 ModelState.AddModelError("", "Unable to save agreement. See logs for details.");
                 return Page();
             }
-        }
+        } 
 
         private async Task LoadQuestionnaireAsync(int questionnaireId)
         {
