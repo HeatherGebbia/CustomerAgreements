@@ -9,7 +9,7 @@
     @switch (q.DependentAnswerType)
     {
         case "Single-line Textbox":
-            <input type="text" name="question_@q.DependentQuestionID" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            <input type="text" name="dependentQuestion_@q.DependentQuestionID" class="form-control w-75" @(q.IsRequired ? "required" : null) />
             @if (q.IsRequired)
             {
                 <div class="required-message">Required</div>
@@ -17,7 +17,7 @@
             break;
 
         case "Multi-line Textbox":
-            <textarea class="form-control w-75" name="question_@q.DependentQuestionID" rows="3" @(q.IsRequired ? "required" : null)></textarea>
+            <textarea class="form-control w-75" name="dependentQuestion_@q.DependentQuestionID" rows="3" @(q.IsRequired ? "required" : null)></textarea>
             @if (q.IsRequired)
             {
                 <div class="required-message">Required</div>
@@ -31,7 +31,7 @@
                     <div class="form-check form-check-inline">
                         <input type="radio"
                                class="form-check-input"
-                               name="question_@q.DependentQuestionID"
+                               name="dependentQuestion_@q.DependentQuestionID"
                                id="option_@ql.DependentQuestionListID"
                                value="@ql.ListValue"
                                @(q.IsRequired ? "required" : null) />
@@ -55,7 +55,7 @@
                     <div class="form-check mb-2">
                         <input type="checkbox"
                                class="form-check-input"
-                               name="question_@q.DependentQuestionID"
+                               name="dependentQuestion_@q.DependentQuestionID"
                                id="checkbox_@ql.DependentQuestionListID"
                                value="@ql.ListValue"
                                @(q.IsRequired ? "required" : null) />
@@ -72,7 +72,7 @@
             break;
 
         case "Drop Down List":
-            <select class="form-select w-75" name="question_@q.DependentQuestionID" @(q.IsRequired ? "required" : null)>
+            <select class="form-select w-75" name="dependentQuestion_@q.DependentQuestionID" @(q.IsRequired ? "required" : null)>
                 <option value="">-- Select One --</option>
                 @foreach (var ql in q.DependentQuestionLists.OrderBy(ql => ql.SortOrder))
                 {
@@ -86,7 +86,7 @@
             break;
 
         case "Date":
-            <input type="date" name="question_@q.DependentQuestionID" class="form-control w-25" @(q.IsRequired ? "required" : null) />
+            <input type="date" name="dependentQuestion_@q.DependentQuestionID" class="form-control w-25" @(q.IsRequired ? "required" : null) />
             @if (q.IsRequired)
             {
                 <div class="required-message">Required</div>
@@ -97,8 +97,8 @@
             <div class="form-check">
                 <input type="checkbox"
                        class="form-check-input"
-                       id="question_@q.DependentQuestionID"
-                       name="question_@q.DependentQuestionID"
+                       id="dependentQuestion_@q.DependentQuestionID"
+                       name="dependentQuestion_@q.DependentQuestionID"
                        value="true"
                        @(q.IsRequired ? "required" : null) />
             </div>
@@ -109,7 +109,7 @@
             break;
 
         default:
-            <input type="text" name="question_@q.DependentQuestionID" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            <input type="text" name="dependentQuestion_@q.DependentQuestionID" class="form-control w-75" @(q.IsRequired ? "required" : null) />
             @if (q.IsRequired)
             {
                 <div class="required-message">Required</div>

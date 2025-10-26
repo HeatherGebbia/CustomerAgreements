@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Serilog.Core;
 using static System.Collections.Specialized.BitVector32;
 using static System.Net.Mime.MediaTypeNames;
+using CustomerAgreements.Services;
 
 namespace CustomerAgreements.Pages.Agreements
 {
@@ -15,11 +16,13 @@ namespace CustomerAgreements.Pages.Agreements
     {
         private readonly ILogger<CreateModel> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly AgreementResponseService _agreementService;
 
-        public CreateModel(ILogger<CreateModel> logger, ApplicationDbContext context)
+        public CreateModel(ILogger<CreateModel> logger, ApplicationDbContext context, AgreementResponseService agreementService)
         {
             _logger = logger;
             _context = context;
+            _agreementService = agreementService;
         }
 
         [BindProperty]
@@ -34,8 +37,7 @@ namespace CustomerAgreements.Pages.Agreements
         public bool Preview { get; set; }
 
         [BindProperty]
-        public string ActionType { get; set; } = "";
-
+        public string ActionType { get; set; } = "";      
 
         public async Task<IActionResult> OnGetAsync(int questionnaireId)
         {
@@ -103,62 +105,17 @@ namespace CustomerAgreements.Pages.Agreements
                 FormModel.Agreement.QuestionnaireID = questionnaireId;
                 FormModel.Agreement.CustomerName = FormModel.Customer.CompanyName;
                 FormModel.Agreement.CustomerEmail= FormModel.Customer.EmailAddress;
+                FormModel.Agreement.Status = isSubmit ? "Submitted" : "Draft";
 
                 if (isSubmit)
                 {
                     FormModel.Agreement.SubmittedDate = DateTime.UtcNow;
-                    FormModel.Agreement.Status = "Submitted";
-                }
-                else
-                {
-                    FormModel.Agreement.Status = "Draft";
                 }
 
                 _context.Agreements.Add(FormModel.Agreement);
                 await _context.SaveChangesAsync();
 
-                if (FormModel.Questionnaire?.Sections != null)
-                {
-                    foreach (var section in FormModel.Questionnaire.Sections)
-                    {
-                        if (section.Questions == null) continue;
-
-                        foreach (var question in section.Questions)
-                        {
-                            string fieldName = $"question_{question.QuestionID}";
-                            string? userInput = Request.Form[fieldName];
-
-                            // Skip unanswered non-required questions
-                            if (string.IsNullOrWhiteSpace(userInput) && !question.IsRequired)
-                                continue;
-
-                            var answer = new Answer
-                            {
-                                AgreementID = FormModel.Agreement.AgreementID,
-                                QuestionID = question.QuestionID,
-                                QuestionnaireID = questionnaireId,
-                                SectionID = question.SectionID
-                            };
-
-                            // Save based on answer type
-                            if (question.AnswerType == "Date")
-                            {
-                                if (DateTime.TryParse(userInput, out var parsedDate))
-                                {
-                                    answer.DateAnswer = parsedDate;
-                                }
-                            }
-                            else
-                            {
-                                answer.Text = userInput;
-                            }
-
-                                _context.Answers.Add(answer);
-                        }
-                    }
-
-                    await _context.SaveChangesAsync();
-                }
+                await _agreementService.SaveAnswersFromFormAsync(questionnaireId, FormModel.Agreement, Request.Form, FormModel.Questionnaire);
                     
                 if (isSubmit)
                 {
@@ -167,7 +124,7 @@ namespace CustomerAgreements.Pages.Agreements
                 else
                 {
                     return RedirectToPage("/Agreement/Edit", new { questionnaireId, agreementId = FormModel.Agreement.AgreementID });
-                }                    
+                } 
             }
             catch (Exception ex)
             {

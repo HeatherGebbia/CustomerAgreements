@@ -47,7 +47,7 @@ namespace CustomerAgreements.Pages.Questions
                 return NotFound();
             }
             
-            ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions();
+            ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions(false);
             return Page();
         }
 
@@ -55,7 +55,7 @@ namespace CustomerAgreements.Pages.Questions
         {
             if (!ModelState.IsValid)
             {
-                ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions();
+                ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions(false);
                 return Page();
             }
 
