@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CustomerAgreements.Data;
 using CustomerAgreements.Models;
+using CustomerAgreements.Services;
 
 namespace CustomerAgreements.Pages.Agreements
 {
@@ -15,11 +16,13 @@ namespace CustomerAgreements.Pages.Agreements
     {
         private readonly ILogger<EditModel> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly AgreementResponseService _agreementService;
 
-        public EditModel(ILogger<EditModel> logger, ApplicationDbContext context)
+        public EditModel(ILogger<EditModel> logger, ApplicationDbContext context, AgreementResponseService agreementService)
         {
             _logger = logger;
             _context = context;
+            _agreementService = agreementService;
         }
 
         [BindProperty]
@@ -54,11 +57,17 @@ namespace CustomerAgreements.Pages.Agreements
             // Determine which button was clicked
             var isSubmit = ActionType == "Submit";
 
+            await LoadQuestionnaireAsync(questionnaireId, agreementId);
+
             if (!isSubmit)
             {
                 // Remove validation errors for questionnaire questions
                 var keysToRemove = ModelState.Keys
-                    .Where(k => k.Contains("Questionnaire.Sections") || k.Contains("Questions") || k.Contains("QuestionLists"))
+                    .Where(k => k.Contains("Questionnaire.Sections")
+                             || k.Contains("Questions")
+                             || k.Contains("QuestionLists")
+                             || k.Contains("Answer")
+                             || k.Contains("DependentAnswer"))
                     .ToList();
 
                 foreach (var key in keysToRemove)
@@ -69,39 +78,40 @@ namespace CustomerAgreements.Pages.Agreements
 
             if (!ModelState.IsValid)
             {
-                await LoadQuestionnaireAsync(questionnaireId, agreementId);
                 return Page();
             }
 
             try
-            {                
+            {
+                // Load the existing Agreement from the DB
+                var existingAgreement = await _context.Agreements
+                    .Include(a => a.Customer)
+                    .FirstOrDefaultAsync(a => a.AgreementID == agreementId);
+
+                if (existingAgreement == null)
+                {
+                    ModelState.AddModelError("", "Agreement not found.");
+                    return Page();
+                }
+
+                // Update basic fields (these may be changed by user or system)
+                existingAgreement.Status = isSubmit ? "Submitted" : "Draft";
                 if (isSubmit)
                 {
-                    FormModel.Agreement.SubmittedDate = DateTime.UtcNow;
-                    FormModel.Agreement.Status = "Submitted";
+                    existingAgreement.SubmittedDate = DateTime.UtcNow;
                 }
 
-                _context.Agreements.Add(FormModel.Agreement);
-                await _context.SaveChangesAsync();
-
-                var agreement = await _context.Agreements
-                    .Include(a => a.Answers)
-                        .ThenInclude(da => da.DependentAnswers)
-                    .FirstOrDefaultAsync(a => a.AgreementID == FormModel.Agreement.AgreementID);
-
-                if (agreement != null)
+                // Save customer edits if applicable
+                if (existingAgreement.Customer != null && FormModel.Agreement.Customer != null)
                 {
-                    foreach (var answer in agreement.Answers)
-                    {
-                        if (answer.DependentAnswers.Any())
-                        {
-                            _context.DependentAnswers.RemoveRange(answer.DependentAnswers);
-                        }
-                    }
-
-                    _context.Answers.RemoveRange(agreement.Answers);
-                    await _context.SaveChangesAsync();
+                    existingAgreement.Customer.CompanyName = FormModel.Agreement.Customer.CompanyName;
+                    existingAgreement.Customer.ContactName = FormModel.Agreement.Customer.ContactName;
+                    existingAgreement.Customer.EmailAddress = FormModel.Agreement.Customer.EmailAddress;
                 }
+
+                await _context.SaveChangesAsync();                
+
+                await _agreementService.SaveOrUpdateAnswersFromFormAsync(questionnaireId, FormModel.Agreement, Request.Form, FormModel.Questionnaire);
 
                 if (isSubmit)
                 {

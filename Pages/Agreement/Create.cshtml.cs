@@ -115,7 +115,7 @@ namespace CustomerAgreements.Pages.Agreements
                 _context.Agreements.Add(FormModel.Agreement);
                 await _context.SaveChangesAsync();
 
-                await _agreementService.SaveAnswersFromFormAsync(questionnaireId, FormModel.Agreement, Request.Form, FormModel.Questionnaire);
+                await _agreementService.SaveOrUpdateAnswersFromFormAsync(questionnaireId, FormModel.Agreement, Request.Form, FormModel.Questionnaire);
                     
                 if (isSubmit)
                 {

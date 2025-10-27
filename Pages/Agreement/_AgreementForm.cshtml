@@ -74,7 +74,9 @@
                                     <label class="fw-semibold @(q.IsRequired ? "required-label" : "")">@($"{questionNo}. {q.Text}")</label>
                                         </td>
                                         <td style="vertical-align: top;">
-                                            <partial name="_RenderQuestionType" model="q" />
+                                    <partial name="_RenderQuestionType"
+                                             model="q"
+                                             view-data='new ViewDataDictionary(ViewData) { ["Agreement"] = Model.Agreement }' />
                                         </td>
                                     </tr>
                                     questionNo++;

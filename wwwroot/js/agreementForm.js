@@ -5,7 +5,25 @@ window.addEventListener("beforeunload", () => {
 
 // Restore expanded dependents on load
 window.addEventListener("load", () => {
+    // Detect if we're in Edit mode — look for an AgreementID field that already has a value
+    const agreementIdInput = document.querySelector("input[name='Agreement.AgreementID']");
+    const isEditMode = agreementIdInput && agreementIdInput.value && agreementIdInput.value !== "0";
+
+    // If we're not editing, clear any saved dependents and exit
+    if (!isEditMode) {
+        localStorage.removeItem("expandedDependents");
+        return;
+    }
+
     const saved = JSON.parse(localStorage.getItem("expandedDependents") || "[]");
+
+    // Only dependents marked data-expanded="true" should auto-expand in Edit mode
+    document.querySelectorAll(".dependent-question[data-expanded='true']").forEach(depDiv => {
+        if (!saved.includes(depDiv.id)) {
+            saved.push(depDiv.id);
+        }
+    });
+
     saved.forEach(depId => {
         const depDiv = document.getElementById(depId);
         if (depDiv) {
@@ -23,6 +41,9 @@ window.addEventListener("load", () => {
 
         }
     });
+
+    // Keep this synced
+    localStorage.setItem("expandedDependents", JSON.stringify(saved));
 });
 
 // Listen for change events on radios, checkboxes, and dropdowns
@@ -133,44 +154,7 @@ document.addEventListener("change", event => {
 });
 
 window.addEventListener("load", () => {
-    document.querySelectorAll("form").forEach(form => {
-        //form.addEventListener("submit", (e) => {
-        //    form.classList.add("submitted");
-
-        //    // 1) Sync ALL dependents to visibility before validating
-        //    form.querySelectorAll(".dependent-question").forEach(dep => {
-        //        const visible =
-        //            dep.offsetParent !== null &&           // not display:none or detached
-        //            getComputedStyle(dep).display !== "none" &&
-        //            getComputedStyle(dep).visibility !== "hidden" &&
-        //            dep.style.maxHeight !== "0px";         // your collapse style
-
-        //        dep.querySelectorAll("input, select, textarea").forEach(el => {
-        //            el.disabled = !visible;                // hidden => disabled, visible => enabled
-        //        });
-        //    });
-
-        //    // 2) Checkbox groups: enforce "at least one" (not all)
-        //    const checkboxGroups = {};
-        //    form.querySelectorAll("input[type='checkbox'][name]").forEach(cb => {
-        //        // Only consider visible+enabled checkboxes
-        //        const visible = cb.offsetParent !== null && !cb.disabled;
-        //        if (!visible) return;
-        //        (checkboxGroups[cb.name] ||= []).push(cb);
-        //    });
-
-        //    Object.values(checkboxGroups).forEach(group => {
-        //        const anyChecked = group.some(cb => cb.checked);
-        //        // If none checked, make only the first visible one required; otherwise none required
-        //        group.forEach((cb, idx) => cb.required = !anyChecked && idx === 0);
-        //    });
-
-        //    // 3) Final validity gate
-        //    if (!form.checkValidity()) {
-        //        e.preventDefault();
-        //        form.reportValidity();
-        //    }
-        //});
+    document.querySelectorAll("form").forEach(form => {       
 
         form.addEventListener("submit", (e) => {
             const action = e.submitter?.value; // "Save" or "Submit"

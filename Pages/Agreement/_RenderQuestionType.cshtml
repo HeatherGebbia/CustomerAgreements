@@ -2,13 +2,16 @@
 
 @{
     var q = Model;
+    var agreement = ViewData["Agreement"] as CustomerAgreements.Models.Agreement;
+    var existingAnswers = agreement?.Answers?.Where(a => a.QuestionID == q.QuestionID).ToList() ?? new List<CustomerAgreements.Models.Answer>();
+    var existingAnswer = existingAnswers.FirstOrDefault();
 }
 
 <div class="mb-2">
     @switch (q.AnswerType)
     {
         case "Single-line Textbox":
-            <input type="text" name="question_@q.QuestionID" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            <input type="text" name="question_@q.QuestionID" value="@existingAnswer?.Text" class="form-control w-75" @(q.IsRequired ? "required" : null) />
             @if (q.IsRequired)
             {
                 <div class="required-message">Required</div>
@@ -16,7 +19,7 @@
             break;
 
         case "Multi-line Textbox":
-            <textarea class="form-control w-75" name="question_@q.QuestionID" rows="3" @(q.IsRequired ? "required" : null)></textarea>
+            <textarea class="form-control w-75" name="question_@q.QuestionID" rows="3" @(q.IsRequired ? "required" : null)>@existingAnswer?.Text</textarea>
             @if (q.IsRequired)
             {
                 <div class="required-message">Required</div>
@@ -27,12 +30,14 @@
             <div class="d-flex flex-wrap gap-0 align-items-baseline">
                 @foreach (var ql in q.QuestionLists.OrderBy(ql => ql.SortOrder))
                 {
+                    var checkedAttr = existingAnswers.Any(a => a.QuestionListID == ql.QuestionListID) ? "checked" : null;
                     <div class="form-check form-check-inline">
                         <input type="radio"
                                class="form-check-input"
                                name="question_@q.QuestionID"
                                id="option_@ql.QuestionListID"
                                value="@ql.ListValue"
+                               @checkedAttr
                                @(q.IsRequired ? "required" : null)
                                data-conditional="@ql.Conditional.ToString().ToLower()"
                                data-dependentid="dependent_@ql.QuestionListID" />
@@ -51,12 +56,16 @@
             <!-- Render dependents, if any -->
             @foreach (var ql in q.QuestionLists.Where(ql => ql.Conditional))
             {
+                var visible = existingAnswers.Any(a => a.QuestionListID == ql.QuestionListID);
                 <div id="dependent_@ql.QuestionListID"
                      class="dependent-question mt-2 ms-4"
-                     style="display:none;">
+                     data-expanded="@(visible ? "true" : "false")"
+                     style="display:@(visible ? "block" : "none");">
                     @foreach (var dq in ql.DependentQuestions.OrderBy(dq => dq.SortOrder))
                     {
-                        <partial name="_RenderDependentQuestionType" model="dq" />
+                        <partial name="_RenderDependentQuestionType"
+                                 model="dq"
+                                 view-data='new ViewDataDictionary(ViewData) { ["Agreement"] = agreement }' />
                     }
                 </div>
             }
@@ -67,12 +76,14 @@
             <div>
                 @foreach (var ql in q.QuestionLists.OrderBy(ql => ql.SortOrder))
                 {
+                    var isChecked = existingAnswers.Any(a => a.QuestionListID == ql.QuestionListID) ? "checked" : null;
                     <div class="form-check mb-2">
                         <input type="checkbox"
                                class="form-check-input"
                                name="question_@q.QuestionID"
                                id="checkbox_@ql.QuestionListID"
                                value="@ql.ListValue"
+                               @isChecked
                                @(q.IsRequired ? "required" : null)
                                data-conditional="@ql.Conditional.ToString().ToLower()"
                                data-dependentid="dependent_@ql.QuestionListID" />
@@ -90,12 +101,16 @@
             <!-- Render dependents, if any -->
             @foreach (var ql in q.QuestionLists.Where(ql => ql.Conditional))
             {
+                var visible = existingAnswers.Any(a => a.QuestionListID == ql.QuestionListID);
                 <div id="dependent_@ql.QuestionListID"
                      class="dependent-question mt-2 ms-4"
-                     style="display:none;">
+                     data-expanded="@(visible ? "true" : "false")"
+                     style="display:@(visible ? "block" : "none");">
                     @foreach (var dq in ql.DependentQuestions.OrderBy(dq => dq.SortOrder))
                     {
-                        <partial name="_RenderDependentQuestionType" model="dq" />
+                        <partial name="_RenderDependentQuestionType"
+                                 model="dq"
+                                 view-data='new ViewDataDictionary(ViewData) { ["Agreement"] = agreement }' />
                     }
                 </div>
             }
@@ -107,7 +122,9 @@
                 <option value="">-- Select One --</option>
                 @foreach (var ql in q.QuestionLists.OrderBy(ql => ql.SortOrder))
                 {
+                    var isSelected = existingAnswer?.QuestionListID == ql.QuestionListID;
                     <option value="@ql.ListValue"
+                            selected="@(isSelected ? "selected" : null)"
                             data-conditional="@ql.Conditional.ToString().ToLower()"
                             data-dependentid="dependent_@ql.QuestionListID">
                         @ql.ListValue
@@ -123,19 +140,23 @@
             <!-- Render dependents, if any -->
             @foreach (var ql in q.QuestionLists.Where(ql => ql.Conditional))
             {
+                var visible = existingAnswers.Any(a => a.QuestionListID == ql.QuestionListID);
                 <div id="dependent_@ql.QuestionListID"
                      class="dependent-question mt-2 ms-4"
-                     style="display:none;">
+                     data-expanded="@(visible ? "true" : "false")"
+                     style="display:@(visible ? "block" : "none");">
                     @foreach (var dq in ql.DependentQuestions.OrderBy(dq => dq.SortOrder))
                     {
-                        <partial name="_RenderDependentQuestionType" model="dq" />
+                        <partial name="_RenderDependentQuestionType"
+                                 model="dq"
+                                 view-data='new ViewDataDictionary(ViewData) { ["Agreement"] = agreement }' />
                     }
                 </div>
             }
             break;
 
         case "Date":
-            <input type="date" name="question_@q.QuestionID" class="form-control w-25" @(q.IsRequired ? "required" : null) />
+            <input type="date" name="question_@q.QuestionID" value="@existingAnswer?.DateAnswer?.ToString("yyyy-MM-dd")" class="form-control w-25" @(q.IsRequired ? "required" : null) />
             @if (q.IsRequired)
             {
                 <div class="required-message">Required</div>
@@ -148,7 +169,7 @@
                        class="form-check-input"
                        id="question_@q.QuestionID"
                        name="question_@q.QuestionID"
-                       value="true"
+                       value="@existingAnswer?.Text"
                        @(q.IsRequired ? "required" : null) />
             </div>
             @if (q.IsRequired)
@@ -158,7 +179,7 @@
             break;
 
         default:
-            <input type="text" name="question_@q.QuestionID" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            <input type="text" name="question_@q.QuestionID" value="@existingAnswer?.Text" class="form-control w-75" @(q.IsRequired ? "required" : null) />
             break;
     }
 </div>
