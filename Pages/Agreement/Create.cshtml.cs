@@ -37,13 +37,17 @@ namespace CustomerAgreements.Pages.Agreements
         public bool Preview { get; set; }
 
         [BindProperty]
-        public string ActionType { get; set; } = "";      
+        public string ActionType { get; set; } = "";
+
+        [TempData]
+        public string? StatusMessage { get; set; }
+
 
         public async Task<IActionResult> OnGetAsync(int questionnaireId)
         {
             try
             {
-                LoadQuestionnaireAsync(questionnaireId).Wait();
+                await LoadQuestionnaireAsync(questionnaireId);
 
                 // Initialize a new Customer record
                 FormModel.Customer = new CustomerAgreements.Models.Customer();
@@ -76,13 +80,16 @@ namespace CustomerAgreements.Pages.Agreements
 
             if (!isSubmit)
             {
-                // Remove validation errors for questionnaire questions 
+                var keysToKeep = new[]
+                {
+                    "Customer.CompanyName",
+                    "Customer.ContactName",
+                    "Customer.EmailAddress"
+                };
+
+                // Remove validation errors for questionnaire questions
                 var keysToRemove = ModelState.Keys
-                    .Where(k => k.Contains("Questionnaire.Sections")
-                             || k.Contains("Questions")
-                             || k.Contains("QuestionLists")
-                             || k.Contains("Answer")
-                             || k.Contains("DependentAnswer"))
+                    .Where(k => !keysToKeep.Any(keep => k.Contains(keep)))
                     .ToList();
 
                 foreach (var key in keysToRemove)
@@ -123,6 +130,7 @@ namespace CustomerAgreements.Pages.Agreements
                 }
                 else
                 {
+                    StatusMessage = "Draft saved successfully.";
                     return RedirectToPage("/Agreement/Edit", new { questionnaireId, agreementId = FormModel.Agreement.AgreementID });
                 } 
             }

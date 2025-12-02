@@ -9,6 +9,13 @@
         </div>
     }
 
+    @if (!string.IsNullOrEmpty(TempData["StatusMessage"] as string))
+    {
+        <div class="alert alert-success text-center">
+            @TempData["StatusMessage"]
+        </div>
+    }
+
     <div class="form-group d-flex">
         <input type="checkbox" asp-for="@Model.Agreement.ReadPrivacyPolicy" class="form-check-input" id="ReadPrivacyPolicy" />
         &nbsp;@Model.Acknowledgement

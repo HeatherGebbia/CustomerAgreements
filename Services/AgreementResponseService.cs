@@ -32,8 +32,10 @@ namespace CustomerAgreements.Services
                     string fieldName = $"question_{question.QuestionID}";
                     string? userInput = form[fieldName];
 
-                    // Skip empty + not required
-                    if (string.IsNullOrWhiteSpace(userInput) && !question.IsRequired)
+                    bool isSingleCheckbox = question.AnswerType == "Single Checkbox";
+
+                    // Skip empty + not required for everything EXCEPT Single Checkbox
+                    if (string.IsNullOrWhiteSpace(userInput) && !question.IsRequired && !isSingleCheckbox)
                         continue;
 
                     // Try to find an existing answer (Edit mode)
@@ -120,6 +122,19 @@ namespace CustomerAgreements.Services
                                     await SaveOrUpdateDependentAnswersAsync(question, selectedListItem, newAnswer, questionnaireId, agreement, form);
                             }
                         }
+                    }
+                    else if (question.AnswerType == "Single Checkbox")
+                    {
+                        // Checkbox is only "present" in the form if checked
+                        var isChecked = !string.IsNullOrEmpty(userInput);
+
+                        // Store a clean true/false string
+                        answer.Text = isChecked ? "true" : "false";
+
+                        if (existingAnswer == null)
+                            _context.Answers.Add(answer);
+
+                        await _context.SaveChangesAsync();
                     }
                     else
                     {

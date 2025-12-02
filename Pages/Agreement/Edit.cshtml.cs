@@ -35,11 +35,15 @@ namespace CustomerAgreements.Pages.Agreements
         [BindProperty]
         public string ActionType { get; set; } = "";
 
+        [TempData]
+        public string? StatusMessage { get; set; }
+
+
         public async Task<IActionResult> OnGetAsync(int questionnaireId, int agreementId)
         {
             try
             {
-                LoadQuestionnaireAsync(questionnaireId, agreementId).Wait();
+                await LoadQuestionnaireAsync(questionnaireId, agreementId);
                 return Page();
             }
             catch (Exception ex)
@@ -54,6 +58,8 @@ namespace CustomerAgreements.Pages.Agreements
 
         public async Task<IActionResult> OnPostAsync(int questionnaireId, int agreementId)
         {
+            bool postedReadPrivacy = Agreement.ReadPrivacyPolicy;
+
             // Determine which button was clicked
             var isSubmit = ActionType == "Submit";
 
@@ -61,13 +67,16 @@ namespace CustomerAgreements.Pages.Agreements
 
             if (!isSubmit)
             {
+                var keysToKeep = new[]
+                {
+                    "Customer.CompanyName",
+                    "Customer.ContactName",
+                    "Customer.EmailAddress"
+                };
+
                 // Remove validation errors for questionnaire questions
                 var keysToRemove = ModelState.Keys
-                    .Where(k => k.Contains("Questionnaire.Sections")
-                             || k.Contains("Questions")
-                             || k.Contains("QuestionLists")
-                             || k.Contains("Answer")
-                             || k.Contains("DependentAnswer"))
+                    .Where(k => !keysToKeep.Any(keep => k.Contains(keep)))
                     .ToList();
 
                 foreach (var key in keysToRemove)
@@ -96,17 +105,19 @@ namespace CustomerAgreements.Pages.Agreements
 
                 // Update basic fields (these may be changed by user or system)
                 existingAgreement.Status = isSubmit ? "Submitted" : "Draft";
+                existingAgreement.ReadPrivacyPolicy = postedReadPrivacy;
+
                 if (isSubmit)
                 {
                     existingAgreement.SubmittedDate = DateTime.UtcNow;
                 }
 
                 // Save customer edits if applicable
-                if (existingAgreement.Customer != null && FormModel.Agreement.Customer != null)
+                if (existingAgreement.Customer != null && FormModel.Customer != null)
                 {
-                    existingAgreement.Customer.CompanyName = FormModel.Agreement.Customer.CompanyName;
-                    existingAgreement.Customer.ContactName = FormModel.Agreement.Customer.ContactName;
-                    existingAgreement.Customer.EmailAddress = FormModel.Agreement.Customer.EmailAddress;
+                    existingAgreement.Customer.CompanyName = FormModel.Customer.CompanyName;
+                    existingAgreement.Customer.ContactName = FormModel.Customer.ContactName;
+                    existingAgreement.Customer.EmailAddress = FormModel.Customer.EmailAddress;
                 }
 
                 await _context.SaveChangesAsync();                
@@ -119,6 +130,7 @@ namespace CustomerAgreements.Pages.Agreements
                 }
                 else
                 {
+                    StatusMessage = "Draft saved successfully.";
                     return RedirectToPage("/Agreement/Edit", new { questionnaireId, agreementId = FormModel.Agreement.AgreementID });
                 }
             }
@@ -149,6 +161,17 @@ namespace CustomerAgreements.Pages.Agreements
                 .Include(a => a.Answers)
                         .ThenInclude(da => da.DependentAnswers)
                 .FirstOrDefaultAsync(a => a.AgreementID == agreementId);
+
+            Agreement = FormModel.Agreement ?? new CustomerAgreements.Models.Agreement();
+
+            if (FormModel.Agreement?.Customer != null)
+            {
+                FormModel.Customer = FormModel.Agreement.Customer;
+            }
+            else
+            {
+                FormModel.Customer = new Customer();
+            }
 
             var instructions = await _context.Notifications
             .Where(n => n.NotificationKey == "Instructions")
