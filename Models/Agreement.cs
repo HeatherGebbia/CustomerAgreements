@@ -35,7 +35,7 @@ namespace CustomerAgreements.Models
         public DateTime? ArchivedDate { get; set; }
 
         [MaxLength(1500)]
-        public string ArchivedReason { get; set; } = string.Empty;
+        public string? ArchivedReason { get; set; }
 
 
         // Navigation property (optional: lets EF link back to parent questionnaire)

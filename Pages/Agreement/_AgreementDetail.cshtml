@@ -1,0 +1,76 @@
+﻿@model CustomerAgreements.Models.AgreementFormViewModel
+
+<input type="hidden" asp-for="Agreement.QuestionnaireID" />
+<input type="hidden" asp-for="Agreement.AgreementID" />
+
+<div class="table-responsive">
+    <table class="table table-bordered w-100 align-middle mb-4">
+        <tbody>
+            <!-- Header row -->
+            <tr class="bg-secondary text-white text-center">
+                <td colspan="2" class="fw-bold py-2">Customer Logistics</td>
+            </tr>
+
+            <!-- Each row stacks vertically on small screens -->
+            @if (Model.Agreement.CustomerID > 0)
+            {
+                <tr class="d-block d-md-table-row">
+                    <td class="fw-semibold text-start d-block d-md-table-cell">Customer ID</td>
+                    <td class="text-start d-block d-md-table-cell">@Model.Agreement.CustomerID</td>
+                </tr>
+            }            
+
+            @if (Model.Agreement.AgreementID > 0)
+            {
+                <tr class="d-block d-md-table-row">
+                    <td class="fw-semibold text-start d-block d-md-table-cell">Agreement ID</td>
+                    <td class="text-start d-block d-md-table-cell">@Model.Agreement.AgreementID</td>
+                </tr>
+            }            
+
+            <tr class="d-block d-md-table-row">
+                <td class="fw-semibold text-start d-block d-md-table-cell w-25 required-label">Company Name</td>
+                <td class="text-start d-block d-md-table-cell">@Model.Customer.CompanyName</td>
+            </tr>
+
+            <tr class="d-block d-md-table-row">
+                <td class="fw-semibold text-start d-block d-md-table-cell required-label">Contact Name</td>
+                <td class="text-start d-block d-md-table-cell">@Model.Customer.ContactName</td>
+            </tr>
+
+            <tr class="d-block d-md-table-row">
+                <td class="fw-semibold text-start d-block d-md-table-cell required-label">Email</td>
+                <td class="text-start d-block d-md-table-cell">@Model.Customer.EmailAddress</td>
+            </tr>
+
+            @if (Model.Questionnaire.Sections != null && Model.Questionnaire.Sections.Any())
+            {
+                @foreach (var s in Model.Questionnaire.Sections.OrderBy(s => s.SortOrder))
+                {
+                    <tr class="bg-secondary text-white text-center">
+                        <td colspan="2" class="fw-bold py-2">@s.Text</td>
+                    </tr>
+                    @if (s.Questions != null && s.Questions.Any())
+                        {
+                        var questionNo = 1;
+                        foreach (var q in s.Questions.OrderBy(q => q.SortOrder))
+                                {
+                                    <tr>
+                                        <td>
+                                    <label class="fw-semibold">@($"{questionNo}. {q.Text}")</label>
+                                        </td>
+                                        <td style="vertical-align: top;">
+                                    <partial name="_RenderQuestionTypeReadOnly"
+                                             model="q"
+                                             view-data='new ViewDataDictionary(ViewData) { ["Agreement"] = Model.Agreement }' />
+                                        </td>
+                                    </tr>
+                                    questionNo++;
+                                }
+                        }
+                }
+            }
+
+                </tbody>
+    </table>
+</div>

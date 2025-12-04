@@ -1,0 +1,28 @@
+﻿@model CustomerAgreements.Models.DependentQuestion
+
+@{
+    var q = Model;
+    var agreement = ViewData["Agreement"] as CustomerAgreements.Models.Agreement;
+    var existingDepAnswer = agreement?.Answers?
+        .SelectMany(a => a.DependentAnswers)
+        .FirstOrDefault(d => d.DependentQuestionID == q.DependentQuestionID);
+}
+
+<div class="mb-2">
+    <div>@q.Text</div>
+    @switch (q.DependentAnswerType)
+    {
+        case "Single-line Textbox":
+        case "Multi-line Textbox":
+            @existingDepAnswer?.Answer
+            break;
+
+        case "Date":
+            @existingDepAnswer?.DateAnswer?.ToString("MM/dd/yyyy")
+            break;
+
+        default:
+            @existingDepAnswer?.Answer
+            break;
+    }
+</div>

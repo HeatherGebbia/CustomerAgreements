@@ -29,18 +29,22 @@ namespace CustomerAgreements.Pages.Agreements
         {
             try
             {
-                // Load the questionnaire with sections and questions
                 FormModel.Questionnaire = await _context.Questionnaires
                     .Include(q => q.Sections)
                         .ThenInclude(s => s.Questions)
+                        .ThenInclude(ql => ql.QuestionLists)
+                        .ThenInclude(dq => dq.DependentQuestions)
                     .FirstOrDefaultAsync(q => q.QuestionnaireID == questionnaireId)
                     ?? new Questionnaire();
 
-                // Initialize a new Agreement record
-                FormModel.Agreement = new CustomerAgreements.Models.Agreement
-                {
-                    QuestionnaireID = questionnaireId
-                };
+                FormModel.Agreement = await _context.Agreements
+                    .Include(a => a.Customer)
+                    .Include(a => a.Answers)
+                        .ThenInclude(da => da.DependentAnswers)
+                    .FirstOrDefaultAsync(a => a.AgreementID == agreementId);
+
+                if (FormModel.Agreement?.Customer != null)
+                    FormModel.Customer = FormModel.Agreement.Customer;
 
                 return Page();
             }
@@ -50,30 +54,6 @@ namespace CustomerAgreements.Pages.Agreements
                     Agreement.AgreementID,
                     User.Identity?.Name ?? "Anonymous",
                     DateTime.UtcNow);
-                return Page();
-            }
-        }
-
-        
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            try
-            {
-                return Page();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error viewing Agreement. {ex.Message}",
-                    Agreement.AgreementID,
-                    User.Identity?.Name ?? "Anonymous",
-                    DateTime.UtcNow);
-
-                ModelState.AddModelError("", "Unable to view Agreement. See logs for details.");
                 return Page();
             }
         }
