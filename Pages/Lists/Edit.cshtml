@@ -25,7 +25,8 @@
                 multiple
                 size="8"
                 class="form-select"
-                id="listValues">
+                id="listValues"
+                data-val="false">
         </select>
         <small class="form-text text-muted">
             Hold Ctrl (Windows) or Cmd (Mac) to select multiple values.
@@ -35,7 +36,8 @@
     <div class="mb-3">
         <button type="submit"
                 asp-page-handler="Add"
-                class="btn btn-primary btn-sm">
+                class="btn btn-primary btn-sm"
+                formnovalidate>
             Add
         </button>
 
@@ -47,7 +49,8 @@
 
         <button type="submit"
                 asp-page-handler="Delete"
-                class="btn btn-danger btn-sm">
+                class="btn btn-danger btn-sm"
+                onclick="return confirm('Are you sure you want to delete the selected list values?');">
             Delete Selected
         </button>
 

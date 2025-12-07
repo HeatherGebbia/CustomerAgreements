@@ -47,7 +47,7 @@ namespace CustomerAgreements.Pages.Lists
 
                 return RedirectToPage("/Lists/Edit", new
                 {
-                    listId = List.ListID
+                    id = List.ListID
                 });
             }
             catch (Exception ex)

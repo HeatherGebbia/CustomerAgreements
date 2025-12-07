@@ -33,7 +33,7 @@ namespace CustomerAgreements.Pages.Lists
 
         // For multi-select delete
         [BindProperty]
-        public List<int> SelectedIds { get; set; } = new();
+        public List<int>? SelectedIds { get; set; } = new();
 
         // For tracking which item is being edited
         [BindProperty]
@@ -112,7 +112,7 @@ namespace CustomerAgreements.Pages.Lists
                 ModelState.AddModelError(string.Empty, "Please select one or more values to delete.");
                 await LoadValuesAsync(ListName);
                 return Page();
-            }
+            }            
 
             var rows = await _context.Lists
                 .Where(l => l.ListName == ListName && SelectedIds.Contains(l.ListID))
@@ -121,7 +121,19 @@ namespace CustomerAgreements.Pages.Lists
             _context.Lists.RemoveRange(rows);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage(new { id = Id });
+            // Find a remaining row with this ListName to use as the new anchor
+            var newAnchor = await _context.Lists
+                .Where(l => l.ListName == ListName)
+                .OrderBy(l => l.ListID)
+                .FirstOrDefaultAsync();
+
+            if (newAnchor == null)
+            {
+                // No rows left for this ListName — go back to the List Index
+                return RedirectToPage("/Lists/Index");
+            }
+
+            return RedirectToPage(new { id = newAnchor.ListID });
         }
 
         public async Task<IActionResult> OnPostUpdateAsync()

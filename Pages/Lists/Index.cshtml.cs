@@ -28,9 +28,20 @@ namespace CustomerAgreements.Pages.Lists
                             0,
                             DateTime.UtcNow);
 
-            Lists = await _context.Lists.ToListAsync();
+            // Load all list rows into memory
+            var allLists = await _context.Lists
+                .AsNoTracking()
+                .ToListAsync();
+
+            // Group in-memory by ListName and take one row per group
+            Lists = allLists
+                .GroupBy(l => l.ListName)
+                .Select(g => g.First())
+                .OrderBy(l => l.ListName)
+                .ToList();
+
         }
 
-        
+
     }
 }
