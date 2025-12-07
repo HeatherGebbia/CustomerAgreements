@@ -1,20 +1,20 @@
 ﻿@model CustomerAgreements.Models.Notification
 
-<div class="form-group d-flex">
-    <label asp-for="NotificationName" class="p-2 text-right" style="flex:0 0 15%"></label>
-    <input asp-for="NotificationName" class="form-control" style="flex:1 0 auto;width:auto" />
-    <span asp-validation-for="NotificationName" class="text-danger"></span>
-</div>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <div class="form-group d-flex align-items-center">
     <label asp-for="NotificationType" class="p-2 text-right" style="flex:0 0 15%"></label>
     <div>
-        <input type="radio" asp-for="NotificationType" value="Text" id="Text" />
+        <input type="radio" asp-for="NotificationType" value="Text" id="Text" checked />
         <label for="Text">Text</label>
         <input type="radio" asp-for="NotificationType" value="Message" id="Message" />
         <label for="Message">Message</label>
     </div>
 </div>
-
+<div class="form-group d-flex">
+    <label asp-for="NotificationName" class="p-2 text-right" style="flex:0 0 15%"></label>
+    <input asp-for="NotificationName" class="form-control" style="flex:1 0 auto;width:auto" />
+    <span asp-validation-for="NotificationName" class="text-danger"></span>
+</div>
 @{
     var isMessage = string.Equals(Model.NotificationType, "Message", StringComparison.OrdinalIgnoreCase);
 }
@@ -37,12 +37,10 @@
 <div id="sendCCRow" class="form-group d-flex @(isMessage ? "" : "d-none")">
     <label asp-for="SendCC" class="p-2 text-right" style="flex:0 0 15%"></label>
     <input asp-for="SendCC" class="form-control" style="flex:1 0 auto;width:auto" id="SendCC" />
-    <span asp-validation-for="SendCC" class="text-danger"></span>
 </div>
 <div id="sendBCCRow" class="form-group d-flex @(isMessage ? "" : "d-none")">
     <label asp-for="SendBCC" class="p-2 text-right" style="flex:0 0 15%"></label>
     <input asp-for="SendBCC" class="form-control" style="flex:1 0 auto;width:auto" id="SendBCC" />
-    <span asp-validation-for="SendBCC" class="text-danger"></span>
 </div>
 <div class="form-group d-flex">
     <label asp-for="Text" class="p-2 text-right" style="flex:0 0 15%"></label>

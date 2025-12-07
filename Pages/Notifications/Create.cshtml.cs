@@ -27,7 +27,10 @@ namespace CustomerAgreements.Pages.Notifications
         {
             try
             {
-                
+                Notification = new Notification
+                {
+                    NotificationType = "Text"
+                };
             }
             catch (Exception ex)
             {
@@ -47,6 +50,9 @@ namespace CustomerAgreements.Pages.Notifications
 
             try
             {
+                Notification.LastUpdatedDate = DateTime.UtcNow;
+                Notification.Active = true;
+                Notification.NotificationKey = Notification.NotificationName.Replace(" ", "");
                 _context.Notifications.Add(Notification);
                 await _context.SaveChangesAsync();
 

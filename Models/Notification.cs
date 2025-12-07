@@ -16,10 +16,9 @@ namespace CustomerAgreements.Models
         [Display(Name = "Notification Name")]
         public string NotificationName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(50)]
         [Display(Name = "Key")]
-        public string NotificationKey { get; set; } = string.Empty;
+        public string? NotificationKey { get; set; }
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(8000)]
@@ -31,27 +30,23 @@ namespace CustomerAgreements.Models
         [Display(Name = "Type")]
         public string NotificationType { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(100)]
         public string Subject { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
-        [MaxLength(100)]
         [Display(Name = "Send To")]
         public string SendTo { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(100)]
         [Display(Name = "Send From")]
         public string SendFrom { get; set; } = string.Empty;
 
         [MaxLength(100)]
         [Display(Name = "Send CC")]
-        public string SendCC { get; set; } = string.Empty;
+        public string? SendCC { get; set; }
 
         [MaxLength(100)]
         [Display(Name = "Send BCC")]
-        public string SendBCC { get; set; } = string.Empty;
+        public string? SendBCC { get; set; }
         public bool Active { get; set; }
         public DateTime LastUpdatedDate { get; set; }
     }

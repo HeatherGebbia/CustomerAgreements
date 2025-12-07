@@ -1,0 +1,51 @@
+﻿@page
+@model CustomerAgreements.Pages.Lists.IndexModel
+@{
+    ViewData["Title"] = "Lists";
+}
+
+<div class="jumbotron p-3">
+    <div class="d-flex align-items-center">
+        <h2>Lists</h2>
+</div>
+    <div class="d-flex align-items-center">
+        <p>
+            <a class="btn btn-primary btn-sm" asp-page="./Create">
+                Create new List
+            </a>
+        </p>
+    </div>
+</div>
+
+
+@if (Model.Lists.Count == 0)
+{
+    <p><em>No Lists found.</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>List Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var q in Model.Lists)
+            {
+                <tr>
+                    <td>@q.ListName</td>
+                    <td>
+                        <form method="post" class="p-2 btn-group" style="display:inline" role="group">
+                            <a class="btn btn-primary btn-sm" asp-page="/Lists/Edit" asp-route-Id="@q.ListID">
+                                Edit
+                            </a>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

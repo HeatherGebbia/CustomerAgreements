@@ -61,6 +61,7 @@ namespace CustomerAgreements.Pages.Notifications
 
             try
             {
+                Notification.LastUpdatedDate = DateTime.UtcNow;
                 _context.Attach(Notification).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
