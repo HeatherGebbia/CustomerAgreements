@@ -8,6 +8,23 @@
 
 <div class="jumbotron p-3">
     <form class="form-group">
+        <div class="alert alert-info d-flex align-items-start mt-3" role="alert">
+            <div>
+                <h5 class="alert-heading mb-1">Demo Application</h5>
+                <p class="mb-0">
+                    This is a demo version of the Customer Agreement application.
+                    All data shown is sample data.
+                    To experience the customer workflow, click
+                    <strong>"Start Demo: Create a New Agreement"</strong> below to create and submit a sample agreement.
+                </p>
+            </div>
+        </div>
+        <div>
+            <a class="btn btn-primary btn-sm" asp-page="/Agreement/Create" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID">
+                Start Demo: Create a New Agreement
+            </a>
+        </div>
+        <br />
         <label asp-for="SelectedCompanyName" class="control-label">
             Companies:
         </label>
@@ -65,8 +82,5 @@ else
             }
         </tbody>
     </table>
-    <br />
-    <a class="btn btn-primary btn-sm" asp-page="/Agreement/Create" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID">
-        Test Creating New Agreement
-    </a>
+    
 }
