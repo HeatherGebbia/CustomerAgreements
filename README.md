@@ -14,7 +14,7 @@ A demo web application originally built in **VB.NET Web Forms** and migrated to 
 This repository contains the source code for the **.NET Core with Razor Pages version** of the Customer Agreement application.  
 
 - The original version was written in VB.NET.  
-- This repo highlights the **C# to .NET Core migration effort (in progress)**.    
+- This repo highlights the **C# to .NET Core migration effort**.    
 
 ---
 
