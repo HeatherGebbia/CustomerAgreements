@@ -53,4 +53,4 @@ This repo does **not** include any sensitive information (connection strings, cr
 This project is part of my developer portfolio.  
 
 - 🔗 [View my Portfolio Website](https://heathergebbia.github.io/heather-gebbia-portfolio/)  
-- 💼 [Connect with me on LinkedIn](https://www.linkedin.com/in/heather-gebbia)  
+- 💼 [Connect with me on LinkedIn](https://www.linkedin.com/in/heather-gebbia7)  
