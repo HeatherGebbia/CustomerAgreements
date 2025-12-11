@@ -9,30 +9,36 @@
         </div>
     }
 
+    @if (!string.IsNullOrEmpty(TempData["StatusMessage"] as string))
+    {
+        <div class="alert alert-success text-center">
+            @TempData["StatusMessage"]
+        </div>
+    }
+
     <div class="form-group d-flex">
-        <input type="checkbox" asp-for="@Model.Agreement.ReadPrivacyPolicy" value="false" id="ReadPrivacyPolicy" />
+        <input type="checkbox" asp-for="@Model.Agreement.ReadPrivacyPolicy" class="form-check-input" id="ReadPrivacyPolicy" />
         &nbsp;@Model.Acknowledgement
         <span asp-validation-for="@Model.Agreement.ReadPrivacyPolicy" class="text-danger"></span>
     </div>
 
     <partial name="_AgreementForm" model="Model.FormModel" />
-</form>
 
-<div class="d-flex flex-row">    
-    @if (Model.Preview)
-    {
-        <a asp-page="/Questionnaires/Index" class="btn btn-secondary btn-sm">
-            Close Preview
-        </a>
-    }
-    else
-    {
-        <button type="submit" asp-page-handler="Save" class="btn btn-primary btn-sm">Save</button>
-        <span>&nbsp;</span>
-        <button type="submit" asp-page-handler="Submit" class="btn btn-primary btn-sm">Submit</button>
-        <span>&nbsp;</span>
-    }
-</div>
+    <div class="d-flex flex-row">
+        @if (Model.Preview)
+        {
+            <a asp-page="/Questionnaires/Index" class="btn btn-secondary btn-sm">
+                Close Preview
+            </a>
+        }
+        else
+        {
+            <button type="submit" name="ActionType" value="Save" class="btn btn-primary btn-sm" formnovalidate>Save</button>
+            <span>&nbsp;</span>
+            <button type="submit" name="ActionType" value="Submit" class="btn btn-primary btn-sm">Submit</button>
+        }
+    </div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

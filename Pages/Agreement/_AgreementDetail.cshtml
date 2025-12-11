@@ -1,6 +1,5 @@
 ﻿@model CustomerAgreements.Models.AgreementFormViewModel
 
-<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <input type="hidden" asp-for="Agreement.QuestionnaireID" />
 <input type="hidden" asp-for="Agreement.AgreementID" />
 
@@ -31,26 +30,17 @@
 
             <tr class="d-block d-md-table-row">
                 <td class="fw-semibold text-start d-block d-md-table-cell w-25 required-label">Company Name</td>
-                <td class="text-start d-block d-md-table-cell w-75">
-                    <input asp-for="@Model.Customer.CompanyName" class="form-control w-100" />
-                    <span asp-validation-for="@Model.Customer.CompanyName" class="text-danger"></span>
-                </td>
+                <td class="text-start d-block d-md-table-cell">@Model.Customer.CompanyName</td>
             </tr>
 
             <tr class="d-block d-md-table-row">
                 <td class="fw-semibold text-start d-block d-md-table-cell required-label">Contact Name</td>
-                <td class="text-start d-block d-md-table-cell">
-                    <input asp-for="@Model.Customer.ContactName" class="form-control w-100" />
-                    <span asp-validation-for="@Model.Customer.ContactName" class="text-danger"></span>
-                </td>
+                <td class="text-start d-block d-md-table-cell">@Model.Customer.ContactName</td>
             </tr>
 
             <tr class="d-block d-md-table-row">
                 <td class="fw-semibold text-start d-block d-md-table-cell required-label">Email</td>
-                <td class="text-start d-block d-md-table-cell">
-                    <input asp-for="@Model.Customer.EmailAddress" class="form-control w-100" />
-                    <span asp-validation-for="@Model.Customer.EmailAddress" class="text-danger"></span>
-                </td>
+                <td class="text-start d-block d-md-table-cell">@Model.Customer.EmailAddress</td>
             </tr>
 
             @if (Model.Questionnaire.Sections != null && Model.Questionnaire.Sections.Any())
@@ -60,12 +50,6 @@
                     <tr class="bg-secondary text-white text-center">
                         <td colspan="2" class="fw-bold py-2">@s.Text</td>
                     </tr>
-                    @if (s.IncludeInstructions)
-                    {
-                        <tr class="alert alert-primary text-center mb-4">
-                            <td colspan="2">@s.Instructions</td>
-                        </tr>
-                    }
                     @if (s.Questions != null && s.Questions.Any())
                         {
                         var questionNo = 1;
@@ -73,10 +57,10 @@
                                 {
                                     <tr>
                                         <td>
-                                    <label class="fw-semibold @(q.IsRequired ? "required-label" : "")">@($"{questionNo}. {q.Text}")</label>
+                                    <label class="fw-semibold">@($"{questionNo}. {q.Text}")</label>
                                         </td>
                                         <td style="vertical-align: top;">
-                                    <partial name="_RenderQuestionType"
+                                    <partial name="_RenderQuestionTypeReadOnly"
                                              model="q"
                                              view-data='new ViewDataDictionary(ViewData) { ["Agreement"] = Model.Agreement }' />
                                         </td>

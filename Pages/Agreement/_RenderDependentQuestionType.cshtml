@@ -2,6 +2,10 @@
 
 @{
     var q = Model;
+    var agreement = ViewData["Agreement"] as CustomerAgreements.Models.Agreement;
+    var existingDepAnswer = agreement?.Answers?
+        .SelectMany(a => a.DependentAnswers)
+        .FirstOrDefault(d => d.DependentQuestionID == q.DependentQuestionID);
 }
 
 <div class="mb-2">
@@ -9,80 +13,35 @@
     @switch (q.DependentAnswerType)
     {
         case "Single-line Textbox":
-            <input type="text" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            <input type="text" name="dependentQuestion_@q.DependentQuestionID" class="form-control w-75" value="@existingDepAnswer?.Answer" @(q.IsRequired ? "required" : null) />
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
             break;
 
         case "Multi-line Textbox":
-            <textarea class="form-control w-75" rows="3" @(q.IsRequired ? "required" : null)></textarea>
-            break;
-
-        case "Radio Button List":
-            <div class="d-flex flex-wrap gap-0 align-items-baseline">
-                @foreach (var ql in q.DependentQuestionLists.OrderBy(ql => ql.SortOrder))
-                {
-                    <div class="form-check form-check-inline">
-                        <input type="radio"
-                               class="form-check-input"
-                               name="question_@q.DependentQuestionID"
-                               id="option_@ql.DependentQuestionListID"
-                               value="@ql.ListValue"
-                               @(q.IsRequired ? "required" : null) />
-
-                        <label class="form-check-label" for="option_@ql.DependentQuestionListID">
-                            @ql.ListValue
-                        </label>
-                    </div>
-                }
-            </div>
-
-            break;
-
-        case "Checkbox List":
-            <div>
-                @foreach (var ql in q.DependentQuestionLists.OrderBy(ql => ql.SortOrder))
-                {
-                    <div class="form-check mb-2">
-                        <input type="checkbox"
-                               class="form-check-input"
-                               name="question_@q.DependentQuestionID"
-                               id="checkbox_@ql.DependentQuestionListID"
-                               value="@ql.ListValue"
-                               @(q.IsRequired ? "required" : null) />
-                        <label class="form-check-label" for="checkbox_@ql.DependentQuestionListID">
-                            @ql.ListValue
-                        </label>
-                    </div>
-                }
-            </div>
-            break;
-
-        case "Drop Down List":
-            <select class="form-select w-75" @(q.IsRequired ? "required" : null)>
-                <option value="">-- Select One --</option>
-                @foreach (var ql in q.DependentQuestionLists.OrderBy(ql => ql.SortOrder))
-                {
-                    <option value="@ql.ListValue">@ql.ListValue</option>
-                }
-            </select>
+            <textarea class="form-control w-75" name="dependentQuestion_@q.DependentQuestionID" rows="3" @(q.IsRequired ? "required" : null)>@existingDepAnswer?.Answer</textarea>
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
             break;
 
         case "Date":
-            <input type="date" class="form-control w-25" @(q.IsRequired ? "required" : null) />
-            break;
-
-        case "Single Checkbox":
-            <div class="form-check">
-                <input type="checkbox"
-                       class="form-check-input"
-                       id="question_@q.DependentQuestionID"
-                       name="question_@q.DependentQuestionID"
-                       value="true"
-                       @(q.IsRequired ? "required" : null) />
-            </div>
+            <input type="date" name="dependentQuestion_@q.DependentQuestionID" value="@existingDepAnswer?.DateAnswer?.ToString("yyyy-MM-dd")" class="form-control w-25" @(q.IsRequired ? "required" : null) />
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
             break;
 
         default:
-            <input type="text" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            <input type="text" name="dependentQuestion_@q.DependentQuestionID" value="@existingDepAnswer?.Answer" class="form-control w-75" @(q.IsRequired ? "required" : null) />
+            @if (q.IsRequired)
+            {
+                <div class="required-message">Required</div>
+            }
             break;
     }
 </div>

@@ -1,0 +1,88 @@
+﻿@page "{id:int}"
+@model CustomerAgreements.Pages.Lists.EditModel
+@{
+    ViewData["Title"] = "Edit List";
+}
+
+<h2>Manage List: @Model.ListName</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="EditId" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label class="form-label">New or Edited Value</label>
+        <input asp-for="NewValue" class="form-control" />
+        <span asp-validation-for="NewValue" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Existing Values</label>
+        <select asp-for="SelectedIds"
+                asp-items="Model.ListValues"
+                multiple
+                size="8"
+                class="form-select"
+                id="listValues"
+                data-val="false">
+        </select>
+        <small class="form-text text-muted">
+            Hold Ctrl (Windows) or Cmd (Mac) to select multiple values.
+        </small>
+    </div>
+
+    <div class="mb-3">
+        <button type="submit"
+                asp-page-handler="Add"
+                class="btn btn-primary btn-sm"
+                formnovalidate>
+            Add
+        </button>
+
+        <button type="submit"
+                asp-page-handler="Update"
+                class="btn btn-secondary btn-sm">
+            Update Selected
+        </button>
+
+        <button type="submit"
+                asp-page-handler="Delete"
+                class="btn btn-danger btn-sm"
+                onclick="return confirm('Are you sure you want to delete the selected list values?');">
+            Delete Selected
+        </button>
+
+        <a asp-page="/Lists/Index" class="btn btn-outline-secondary btn-sm">Back</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const select = document.getElementById("listValues");
+            const newValueInput = document.getElementById("NewValue");
+            const editIdInput = document.getElementById("EditId");
+
+            if (!select || !newValueInput || !editIdInput) return;
+
+            select.addEventListener("change", function () {
+                const selectedOptions = Array.from(select.selectedOptions);
+
+                if (selectedOptions.length === 1) {
+                    const opt = selectedOptions[0];
+                    newValueInput.value = opt.text;
+                    editIdInput.value = opt.value;
+                } else {
+                    if (selectedOptions.length === 0) {
+                        newValueInput.value = "";
+                    }
+                    editIdInput.value = "";
+                }
+            });
+        });
+    </script>
+}

@@ -52,3 +52,34 @@ body {
 .table td {
     vertical-align: top !important;
 }
+
+/* Add red asterisk to required question labels */
+.required-label::after {
+    content: " *";
+    color: #dc3545; /* Bootstrap's danger red */
+}
+
+/* Hidden by default */
+.required-message {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875em;
+    transition: opacity 0.3s ease;
+    opacity: 1;
+}
+
+/* Show messages only after submit */
+form.submitted .required-message {
+    display: block;
+}
+
+/* === Hide label when checkbox or radio is checked === */
+.mb-2:has(input[type="checkbox"]:checked) .required-message,
+.mb-2:has(input[type="radio"]:checked) .required-message {
+    display: none !important;
+}
+
+.dependent-question[style*="display: none"] .required-message {
+    display: none !important;
+}
+

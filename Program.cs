@@ -1,4 +1,5 @@
 using CustomerAgreements.Data;
+using CustomerAgreements.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Filters;
@@ -43,7 +44,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"))
            .EnableSensitiveDataLogging()
-           .EnableDetailedErrors());        
+           .EnableDetailedErrors());
+
+builder.Services.AddScoped<AgreementResponseService>();
 
 builder.Services.AddRazorPages();
 

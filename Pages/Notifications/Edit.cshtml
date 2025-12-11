@@ -1,0 +1,15 @@
+﻿@page "{id:int}"
+@model CustomerAgreements.Pages.Notifications.EditModel
+@{
+    ViewData["Title"] = "Edit Notification";
+}
+
+<h2>Edit Notification</h2>
+<form method="post">    
+    <partial name="_NotificationForm" model="Model.Notification" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/notificationForm.js"></script>
+}

@@ -4,18 +4,30 @@ namespace CustomerAgreements.Helpers
 {
     public static class AnswerTypeHelper
     {
-        public static List<SelectListItem> GetAnswerTypeOptions()
+        public static List<SelectListItem> GetAnswerTypeOptions(bool dependent)
         {
-            return new List<SelectListItem>
+            if (dependent)
             {
-                new SelectListItem { Value = "Single-line Textbox", Text = "Textbox" },
-                new SelectListItem { Value = "Multi-line Textbox", Text = "Multi-line Textbox" },
-                new SelectListItem { Value = "Radio Button List", Text = "Radio Button List" },
-                new SelectListItem { Value = "Checkbox List", Text = "Checkbox List" },
-                new SelectListItem { Value = "Drop Down List", Text = "Drop Down List" },
-                new SelectListItem { Value = "Date", Text = "Date" },
-                new SelectListItem { Value = "Single Checkbox", Text = "Single Checkbox" }
-            };
+                return new List<SelectListItem>
+                {
+                    new SelectListItem { Value = "Single-line Textbox", Text = "Textbox" },
+                    new SelectListItem { Value = "Multi-line Textbox", Text = "Multi-line Textbox" },
+                    new SelectListItem { Value = "Date", Text = "Date" }
+                };
+            }
+            else
+            {
+                return new List<SelectListItem>
+                {
+                    new SelectListItem { Value = "Single-line Textbox", Text = "Textbox" },
+                    new SelectListItem { Value = "Multi-line Textbox", Text = "Multi-line Textbox" },
+                    new SelectListItem { Value = "Radio Button List", Text = "Radio Button List" },
+                    new SelectListItem { Value = "Checkbox List", Text = "Checkbox List" },
+                    new SelectListItem { Value = "Drop Down List", Text = "Drop Down List" },
+                    new SelectListItem { Value = "Date", Text = "Date" },
+                    new SelectListItem { Value = "Single Checkbox", Text = "Single Checkbox" }
+                };
+            }
         }
     }
 }

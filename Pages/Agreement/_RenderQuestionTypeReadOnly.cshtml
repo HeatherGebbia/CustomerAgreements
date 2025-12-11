@@ -1,0 +1,86 @@
+﻿@model CustomerAgreements.Models.Question
+
+@{
+    var q = Model;
+    var agreement = ViewData["Agreement"] as CustomerAgreements.Models.Agreement;
+    var existingAnswers = agreement?.Answers?.Where(a => a.QuestionID == q.QuestionID).ToList() ?? new List<CustomerAgreements.Models.Answer>();
+    var existingAnswer = existingAnswers.FirstOrDefault();
+}
+
+<div class="mb-2">
+    @switch (q.AnswerType)
+    {
+        case "Single-line Textbox":
+        case "Multi-line Textbox":
+            @existingAnswer?.Text
+            break;
+
+        case "Radio Button List":
+        case "Drop Down List":
+            {
+                var selected = existingAnswer != null
+                ? q.QuestionLists.FirstOrDefault(ql => ql.QuestionListID == existingAnswer.QuestionListID)
+                : null;
+                @selected?.ListValue
+
+                // dependents for selected option
+                if (selected?.Conditional == true)
+                {
+                    foreach (var dq in selected.DependentQuestions.OrderBy(d => d.SortOrder))
+                    {
+                        <div class="mt-2 ms-4">
+                            <partial name="_RenderDependentQuestionTypeReadOnly"
+                                     model="dq"
+                                     view-data='new ViewDataDictionary(ViewData) { ["Agreement"] = agreement }' />
+                        </div>
+                    }
+                }
+                break;
+            }
+
+        case "Checkbox List":
+            {
+                var selectedLists = q.QuestionLists
+                .Where(ql => existingAnswers.Any(a => a.QuestionListID == ql.QuestionListID))
+                .OrderBy(ql => ql.SortOrder)
+                .ToList();
+
+                if (selectedLists.Any())
+                {
+                    <ul class="mb-0">
+                        @foreach (var item in selectedLists)
+                        {
+                            <li>@item.ListValue
+
+                                @* Render dependents for this checkbox item, if any *@
+                                @if (item.Conditional && item.DependentQuestions != null && item.DependentQuestions.Any())
+                                {
+                                    foreach (var dq in item.DependentQuestions.OrderBy(d => d.SortOrder))
+                                    {
+                                        <div class="mt-1 ms-4">
+                                            <partial name="_RenderDependentQuestionTypeReadOnly"
+                                                     model="dq"
+                                                     view-data='new ViewDataDictionary(ViewData) { ["Agreement"] = agreement }' />
+                                        </div>
+                                    }
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+                break;
+            }
+
+        case "Date":
+            @existingAnswer?.DateAnswer?.ToString("MM/dd/yyyy")
+            break;
+
+        case "Single Checkbox":
+            @(string.Equals(existingAnswer?.Text, "true", StringComparison.OrdinalIgnoreCase) ? "Yes" : "No")
+            break;
+
+        default:
+            @existingAnswer?.Text
+            break;
+    }
+</div>

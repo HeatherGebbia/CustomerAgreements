@@ -15,16 +15,17 @@ namespace CustomerAgreements.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<CreateModel> _logger;
+        private readonly ILogger<IndexModel> _logger;
         private readonly ApplicationDbContext _context;
 
-        public IndexModel(ILogger<CreateModel> logger, ApplicationDbContext context)
+        public IndexModel(ILogger<IndexModel> logger, ApplicationDbContext context)
         {
             _logger = logger;
             _context = context;
         }
 
-        public List<Customer> Customers { get; set; }        
+        public List<CustomerAgreements.Models.Agreement> Agreements { get; set; } = new();
+        public Questionnaire Questionnaire { get; set; } = new();
 
         [BindProperty(SupportsGet = true)]
         public string SearchString { get; set; }
@@ -44,46 +45,64 @@ namespace CustomerAgreements.Pages
                             0,
                             DateTime.UtcNow);
 
-            var customers = from c in _context.Customers
-                            select c;
+            var query = _context.Agreements
+                .Include(a => a.Customer)
+                .Where(a => a.Status == "Submitted")
+                .OrderByDescending(a => a.SubmittedDate)
+                .AsQueryable();
 
+            // Search filtering (by company name)
             if (!string.IsNullOrEmpty(SearchString))
             {
-                customers = customers.Where(c => c.CompanyName.Contains(SearchString));
+                query = query.Where(a => a.Customer.CompanyName.Contains(SearchString));
             }
 
+            // Dropdown filter
+            if (!string.IsNullOrEmpty(SelectedCompanyName))
+            {
+                query = query.Where(a => a.Customer.CompanyName == SelectedCompanyName);
+            }
+
+            // Sorting
             switch (SortField)
             {
                 case "ContactName":
-                    customers = customers.OrderBy(c => c.ContactName);
+                    query = query.OrderBy(a => a.Customer.ContactName);
                     break;
+
                 case "CompanyName":
-                    customers = customers.OrderBy(c => c.CompanyName);
+                    query = query.OrderBy(a => a.Customer.CompanyName);
                     break;
+
                 case "EmailAddress":
-                    customers = customers.OrderBy(c => c.EmailAddress);
+                    query = query.OrderBy(a => a.Customer.EmailAddress);
+                    break;
+
+                default:
+                    query = query.OrderByDescending(a => a.SubmittedDate);
                     break;
             }
 
-            IQueryable<string> customerQuery = from c in _context.Customers
-                                                orderby c.CompanyName
-                                                select c.CompanyName;
+            Agreements = await query.ToListAsync();
 
-            CompanyNames = new SelectList(await customerQuery.Distinct().ToListAsync());
+            // Build company name dropdown from agreements (not from all customers)
+            CompanyNames = new SelectList(
+                await _context.Agreements
+                    .Where(a => a.Status == "Submitted")
+                    .Select(a => a.Customer.CompanyName)
+                    .Distinct()
+                    .OrderBy(name => name)
+                    .ToListAsync()
+            );
 
-            if (!string.IsNullOrEmpty(SelectedCompanyName))
-            {
-                customers = customers.Where(c => c.CompanyName == SelectedCompanyName);
-            }
+            Questionnaire = await _context.Questionnaires
+                .Where(q => q.Status == "Active")
+                .OrderBy(q => q.QuestionnaireID)
+                .FirstOrDefaultAsync() ?? new Questionnaire();
 
-
-            Customers = await customers.ToListAsync();
-        }
-
-        public IActionResult OnPost()
-        {
             //if user is not admin, redirect to create agreement page
-            return RedirectToPage("/Agreements/Create");
+            //return RedirectToPage("/Agreements/Create");
+
         }
     }
 }

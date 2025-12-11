@@ -31,33 +31,42 @@
                 Company Name
             </option>
         </select>
-
     </form>
 </div>
 
-@if (Model.Customers.Count == 0)
+@if (Model.Agreements.Count == 0)
 {
     <p><em>No customers found.</em></p>
 }
 else
-{
+{    
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Contact Name</th>
                 <th>Company Name</th>
+                <th>Contact Name</th>                
                 <th>Email Address</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var c in Model.Customers)
+            @foreach (var a in Model.Agreements)
             {
                 <tr>
-                    <td>@c.ContactName</td>
-                    <td>@c.CompanyName</td>
-                    <td>@c.EmailAddress</td>
+                    <td>
+                        <a asp-page="/Agreement/Detail"
+                           asp-route-questionnaireId="@a.QuestionnaireID"
+                           asp-route-agreementId="@a.AgreementID">
+                            @a.Customer?.CompanyName
+                        </a>
+                    </td>
+                    <td>@a.Customer?.ContactName</td>
+                    <td>@a.Customer?.EmailAddress</td>
                 </tr>
             }
         </tbody>
     </table>
+    <br />
+    <a class="btn btn-primary btn-sm" asp-page="/Agreement/Create" asp-route-questionnaireId="@Model.Questionnaire.QuestionnaireID">
+        Test Creating New Agreement
+    </a>
 }

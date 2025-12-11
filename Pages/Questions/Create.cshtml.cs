@@ -36,7 +36,7 @@ namespace CustomerAgreements.Pages.Questions
                 QuestionLists = new List<QuestionList>()
             };
 
-            ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions();
+            ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions(false);
             return Page();
         }        
 
@@ -44,7 +44,7 @@ namespace CustomerAgreements.Pages.Questions
         {
             if (!ModelState.IsValid)
             {
-                ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions();
+                ViewData["AnswerTypeOptions"] = AnswerTypeHelper.GetAnswerTypeOptions(false);
                 return Page();
             }
 

@@ -14,30 +14,28 @@ namespace CustomerAgreements.Models
         public int CustomerID { get; set; }  
         public int QuestionnaireID { get; set; }
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(128)]
         [Display(Name = "Customer Name")]
         public string CustomerName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(50)]
         [Display(Name = "Customer Email")]
         public string CustomerEmail { get; set; } = string.Empty;
 
+        [Required]
         public bool ReadPrivacyPolicy { get; set; }
-        public DateTime SubmittedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? SubmittedDate { get; set; }
 
         [MaxLength(120)]
         public string SubmittedByName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(50)]
         public string Status { get; set; } = string.Empty;
 
-        public DateTime ArchivedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? ArchivedDate { get; set; }
 
         [MaxLength(1500)]
-        public string ArchivedReason { get; set; } = string.Empty;
+        public string? ArchivedReason { get; set; }
 
 
         // Navigation property (optional: lets EF link back to parent questionnaire)
@@ -46,6 +44,9 @@ namespace CustomerAgreements.Models
 
         [ForeignKey("CustomerID")]
         public Customer? Customer { get; set; }
+
+        public ICollection<Answer> Answers { get; set; } = new List<Answer>();
+        
     }
 }
 

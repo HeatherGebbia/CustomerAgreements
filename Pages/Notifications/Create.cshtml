@@ -1,0 +1,15 @@
+﻿@page
+@model CustomerAgreements.Pages.Notifications.CreateModel
+@{
+    ViewData["Title"] = "Create new Notification";
+}
+
+<h2>Create Notification</h2>
+<form method="post">
+    <partial name="_NotificationForm" model="Model.Notification" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/notificationForm.js"></script>
+}
