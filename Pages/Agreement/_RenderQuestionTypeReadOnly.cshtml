@@ -76,7 +76,7 @@
             break;
 
         case "Single Checkbox":
-            @(string.Equals(existingAnswer?.Text, "true", StringComparison.OrdinalIgnoreCase) ? "Yes" : "No")
+            @(string.Equals(existingAnswer?.Text, "Yes", StringComparison.OrdinalIgnoreCase) ? "Yes" : "No")
             break;
 
         default:
