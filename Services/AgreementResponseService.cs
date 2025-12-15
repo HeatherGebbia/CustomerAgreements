@@ -1,6 +1,12 @@
 ﻿using CustomerAgreements.Data;
 using CustomerAgreements.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using CustomerAgreements.Contracts.Dtos;
 
 namespace CustomerAgreements.Services
 {
@@ -203,5 +209,264 @@ namespace CustomerAgreements.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task SaveOrUpdateAnswersFromApiAsync(
+    int questionnaireId,
+    Agreement agreement,
+    Questionnaire questionnaire,
+    IEnumerable<AnswerDto> answers)
+        {
+            if (questionnaire?.Sections == null)
+                return;
+
+            var answerByQuestionId = answers
+                .GroupBy(a => a.QuestionId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            foreach (var section in questionnaire.Sections)
+            {
+                if (section.Questions == null) continue;
+
+                foreach (var question in section.Questions)
+                {
+                    if (!answerByQuestionId.TryGetValue(question.QuestionID, out var incomingForQuestion))
+                    {
+                        if (question.AnswerType == "Single Checkbox")
+                        {
+                            await UpsertSingleValueAnswerAsync(questionnaireId, agreement, question, "false", null, null);
+                        }
+                        continue;
+                    }
+
+                    if (question.AnswerType == "Date")
+                    {
+                        var raw = incomingForQuestion.FirstOrDefault()?.Value;
+                        DateTime? parsed = null;
+                        if (DateTime.TryParse(raw, out var dt)) parsed = dt;
+
+                        await UpsertDateAnswerAsync(questionnaireId, agreement, question, parsed);
+                    }
+                    else if (question.AnswerType.Contains("List", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (question.AnswerType.Contains("Radio") || question.AnswerType.Contains("Drop Down"))
+                        {
+                            var a = incomingForQuestion.FirstOrDefault();
+                            var selectedListItem = ResolveQuestionListSelection(question, a);
+                            if (selectedListItem == null) continue;
+
+                            await UpsertSingleValueAnswerAsync(
+                                questionnaireId,
+                                agreement,
+                                question,
+                                selectedListItem.ListValue,
+                                selectedListItem.QuestionListID,
+                                null);
+
+                            var parentAnswer = await _context.Answers
+                                .OrderByDescending(x => x.AnswerID)
+                                .FirstAsync(x =>
+                                    x.AgreementID == agreement.AgreementID &&
+                                    x.QuestionID == question.QuestionID);
+
+                            if (selectedListItem.Conditional)
+                                await SaveOrUpdateDependentAnswersFromApiAsync(
+                                    question, selectedListItem, parentAnswer, questionnaireId, agreement, a?.DependentAnswers);
+                        }
+                        else if (question.AnswerType.Contains("Checkbox"))
+                        {
+                            var oldAnswers = _context.Answers
+                                .Where(a => a.AgreementID == agreement.AgreementID && a.QuestionID == question.QuestionID);
+                            _context.Answers.RemoveRange(oldAnswers);
+                            await _context.SaveChangesAsync();
+
+                            var flattened = new List<AnswerDto>();
+
+                            foreach (var inc in incomingForQuestion)
+                            {
+                                if (inc.Values != null && inc.Values.Count > 0)
+                                {
+                                    flattened.AddRange(inc.Values.Select(v => new AnswerDto
+                                    {
+                                        QuestionId = question.QuestionID,
+                                        Value = v,
+                                        DependentAnswers = inc.DependentAnswers
+                                    }));
+                                }
+                                else if (!string.IsNullOrWhiteSpace(inc.Value))
+                                {
+                                    flattened.Add(new AnswerDto
+                                    {
+                                        QuestionId = question.QuestionID,
+                                        Value = inc.Value,
+                                        DependentAnswers = inc.DependentAnswers
+                                    });
+                                }
+                            }
+
+                            foreach (var inc in flattened)
+                            {
+                                var selectedListItem = question.QuestionLists.FirstOrDefault(ql => ql.ListValue == inc.Value);
+                                if (selectedListItem == null) continue;
+
+                                var newAnswer = new Answer
+                                {
+                                    AgreementID = agreement.AgreementID,
+                                    QuestionnaireID = questionnaireId,
+                                    SectionID = question.SectionID,
+                                    QuestionID = question.QuestionID,
+                                    QuestionListID = selectedListItem.QuestionListID,
+                                    Text = selectedListItem.ListValue
+                                };
+
+                                _context.Answers.Add(newAnswer);
+                                await _context.SaveChangesAsync();
+
+                                if (selectedListItem.Conditional)
+                                    await SaveOrUpdateDependentAnswersFromApiAsync(
+                                        question, selectedListItem, newAnswer, questionnaireId, agreement, inc.DependentAnswers);
+                            }
+                        }
+                    }
+                    else if (question.AnswerType == "Single Checkbox")
+                    {
+                        var raw = incomingForQuestion.FirstOrDefault()?.Value;
+                        var isChecked =
+                            string.Equals(raw, "true", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(raw, "on", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(raw, "1", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(raw, "yes", StringComparison.OrdinalIgnoreCase);
+
+                        await UpsertSingleValueAnswerAsync(questionnaireId, agreement, question, isChecked ? "true" : "false", null, null);
+                    }
+                    else
+                    {
+                        var raw = incomingForQuestion.FirstOrDefault()?.Value;
+                        if (string.IsNullOrWhiteSpace(raw) && !question.IsRequired)
+                            continue;
+
+                        await UpsertSingleValueAnswerAsync(questionnaireId, agreement, question, raw, null, null);
+                    }
+                }
+            }
+        }
+
+        private async Task SaveOrUpdateDependentAnswersFromApiAsync(
+            Question parentQuestion,
+            QuestionList selectedListItem,
+            Answer parentAnswer,
+            int questionnaireId,
+            Agreement agreement,
+            List<DependentAnswerDto>? dependentAnswers)
+        {
+            dependentAnswers ??= new List<DependentAnswerDto>();
+            var depById = dependentAnswers.ToDictionary(d => d.DependentQuestionId, d => d.Value);
+
+            foreach (var dep in selectedListItem.DependentQuestions)
+            {
+                depById.TryGetValue(dep.DependentQuestionID, out var depValue);
+
+                var existingDep = await _context.DependentAnswers.FirstOrDefaultAsync(d =>
+                    d.AgreementID == agreement.AgreementID &&
+                    d.QuestionListID == selectedListItem.QuestionListID &&
+                    d.DependentQuestionID == dep.DependentQuestionID);
+
+                if (string.IsNullOrWhiteSpace(depValue) && !dep.IsRequired)
+                {
+                    if (existingDep != null)
+                        _context.DependentAnswers.Remove(existingDep);
+
+                    await _context.SaveChangesAsync();
+                    continue;
+                }
+
+                var depAnswer = existingDep ?? new DependentAnswer
+                {
+                    AgreementID = agreement.AgreementID,
+                    QuestionnaireID = questionnaireId,
+                    SectionID = parentQuestion.SectionID,
+                    QuestionID = parentQuestion.QuestionID,
+                    QuestionListID = selectedListItem.QuestionListID,
+                    DependentQuestionID = dep.DependentQuestionID,
+                    AnswerID = parentAnswer.AnswerID
+                };
+
+                if (dep.DependentAnswerType == "Date" && DateTime.TryParse(depValue, out var parsed))
+                {
+                    depAnswer.DateAnswer = parsed;
+                    depAnswer.Answer = null;
+                }
+                else
+                {
+                    depAnswer.Answer = depValue;
+                    depAnswer.DateAnswer = null;
+                }
+
+                if (existingDep == null)
+                    _context.DependentAnswers.Add(depAnswer);
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task UpsertDateAnswerAsync(int questionnaireId, Agreement agreement, Question question, DateTime? date)
+        {
+            var existing = await _context.Answers.FirstOrDefaultAsync(a =>
+                a.AgreementID == agreement.AgreementID &&
+                a.QuestionID == question.QuestionID);
+
+            var answer = existing ?? new Answer
+            {
+                AgreementID = agreement.AgreementID,
+                QuestionnaireID = questionnaireId,
+                SectionID = question.SectionID,
+                QuestionID = question.QuestionID
+            };
+
+            answer.DateAnswer = date;
+            answer.Text = null;
+            answer.QuestionListID = null;
+
+            if (existing == null) _context.Answers.Add(answer);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task UpsertSingleValueAnswerAsync(int questionnaireId, Agreement agreement, Question question, string? valueText, int? questionListId, DateTime? date)
+        {
+            var existing = await _context.Answers.FirstOrDefaultAsync(a =>
+                a.AgreementID == agreement.AgreementID &&
+                a.QuestionID == question.QuestionID);
+
+            var answer = existing ?? new Answer
+            {
+                AgreementID = agreement.AgreementID,
+                QuestionnaireID = questionnaireId,
+                SectionID = question.SectionID,
+                QuestionID = question.QuestionID
+            };
+
+            answer.Text = valueText;
+            answer.QuestionListID = questionListId;
+            answer.DateAnswer = date;
+
+            if (existing == null) _context.Answers.Add(answer);
+            await _context.SaveChangesAsync();
+        }
+
+        private static QuestionList? ResolveQuestionListSelection(Question question, AnswerDto? input)
+        {
+            if (input == null) return null;
+
+            if (input.QuestionListId.HasValue)
+                return question.QuestionLists.FirstOrDefault(ql => ql.QuestionListID == input.QuestionListId.Value);
+
+            if (!string.IsNullOrWhiteSpace(input.Value))
+                return question.QuestionLists.FirstOrDefault(ql => ql.ListValue == input.Value);
+
+            return null;
+        }
+
+
     }
+
+
 }

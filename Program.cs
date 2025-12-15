@@ -48,6 +48,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<AgreementResponseService>();
 
+builder.Services.AddHttpClient("CustomerAgreementsApi", client =>
+{
+    var baseUrl = builder.Configuration["Api:BaseUrl"];
+    client.BaseAddress = new Uri(baseUrl!);
+});
+
+
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

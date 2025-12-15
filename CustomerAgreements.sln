@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerAgreements", "Custo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerAgreements.Tests", "..\CustomerAgreements.Tests\CustomerAgreements.Tests.csproj", "{1BED5093-3953-4170-9802-D55FD5311499}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerAgreements.Api", "..\CustomerAgreements.api\CustomerAgreements.Api.csproj", "{DF7DA565-FDEC-49AA-A93B-3E3B86BE6CC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerAgreements.Contracts", "..\CustomerAgreements.Contracts\CustomerAgreements.Contracts.csproj", "{CD9D995E-CBC8-41CE-AE20-438619A908E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{1BED5093-3953-4170-9802-D55FD5311499}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BED5093-3953-4170-9802-D55FD5311499}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BED5093-3953-4170-9802-D55FD5311499}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF7DA565-FDEC-49AA-A93B-3E3B86BE6CC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF7DA565-FDEC-49AA-A93B-3E3B86BE6CC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF7DA565-FDEC-49AA-A93B-3E3B86BE6CC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF7DA565-FDEC-49AA-A93B-3E3B86BE6CC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD9D995E-CBC8-41CE-AE20-438619A908E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD9D995E-CBC8-41CE-AE20-438619A908E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD9D995E-CBC8-41CE-AE20-438619A908E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD9D995E-CBC8-41CE-AE20-438619A908E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

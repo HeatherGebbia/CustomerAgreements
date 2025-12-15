@@ -14,7 +14,7 @@ namespace CustomerAgreements.Models
         public int QuestionnaireID { get; set; }
         public int SectionID { get; set; }
         public int QuestionID { get; set; }
-        public int QuestionListID { get; set; }        
+        public int? QuestionListID { get; set; }        
 
         [Required(ErrorMessage = "Required")]
         [MaxLength(8000)]
