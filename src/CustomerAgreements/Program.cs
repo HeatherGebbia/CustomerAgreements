@@ -1,5 +1,6 @@
 using CustomerAgreements.Data;
 using CustomerAgreements.Services;
+using CustomerAgreements.Options;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Filters;
@@ -48,13 +49,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<AgreementResponseService>();
 
+builder.Services.Configure<FeatureFlagsOptions>(
+    builder.Configuration.GetSection("Features"));
+
 builder.Services.AddHttpClient("CustomerAgreementsApi", client =>
 {
     var baseUrl = builder.Configuration["Api:BaseUrl"];
-    client.BaseAddress = new Uri(baseUrl!);
+    client.BaseAddress = string.IsNullOrWhiteSpace(baseUrl)
+        ? null
+        : new Uri(baseUrl);
 });
-
-
 
 builder.Services.AddRazorPages();
 

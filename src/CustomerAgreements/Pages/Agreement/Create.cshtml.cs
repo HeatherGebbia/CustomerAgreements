@@ -2,16 +2,14 @@
 using CustomerAgreements.Contracts.Dtos;
 using CustomerAgreements.Models;
 using CustomerAgreements.Services;
+using CustomerAgreements.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Serilog.Core;
 using System;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 using System.Net.Http.Json;
 
 
@@ -23,14 +21,16 @@ namespace CustomerAgreements.Pages.Agreements
         private readonly ApplicationDbContext _context;
         private readonly AgreementResponseService _agreementService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly FeatureFlagsOptions _flags;
 
-
-        public CreateModel(ILogger<CreateModel> logger, ApplicationDbContext context, AgreementResponseService agreementService, IHttpClientFactory httpClientFactory)
+        public CreateModel(ILogger<CreateModel> logger, ApplicationDbContext context, AgreementResponseService agreementService, IHttpClientFactory httpClientFactory,
+            IOptions<FeatureFlagsOptions> flags)
         {
             _logger = logger;
             _context = context;
             _agreementService = agreementService;
             _httpClientFactory = httpClientFactory;
+            _flags = flags.Value;
         }
 
         [BindProperty]
@@ -78,82 +78,6 @@ namespace CustomerAgreements.Pages.Agreements
             }
         }
 
-
-        //public async Task<IActionResult> OnPostAsync(int questionnaireId)
-        //{
-        //    // Determine which button was clicked
-        //    var isSubmit = ActionType == "Submit";
-
-        //    await LoadQuestionnaireAsync(questionnaireId);
-
-        //    if (!isSubmit)
-        //    {
-        //        var keysToKeep = new[]
-        //        {
-        //            "Customer.CompanyName",
-        //            "Customer.ContactName",
-        //            "Customer.EmailAddress"
-        //        };
-
-        //        // Remove validation errors for questionnaire questions
-        //        var keysToRemove = ModelState.Keys
-        //            .Where(k => !keysToKeep.Any(keep => k.Contains(keep)))
-        //            .ToList();
-
-        //        foreach (var key in keysToRemove)
-        //        {
-        //            ModelState.Remove(key);
-        //        }
-        //    }            
-
-        //    if (!ModelState.IsValid)
-        //    {
-        //         return Page();
-        //    }
-
-        //    try
-        //    {
-        //        _context.Customers.Add(FormModel.Customer);
-        //        await _context.SaveChangesAsync();
-
-        //        FormModel.Agreement.CustomerID = FormModel.Customer.CustomerID;
-        //        FormModel.Agreement.QuestionnaireID = questionnaireId;
-        //        FormModel.Agreement.CustomerName = FormModel.Customer.CompanyName;
-        //        FormModel.Agreement.CustomerEmail= FormModel.Customer.EmailAddress;
-        //        FormModel.Agreement.Status = isSubmit ? "Submitted" : "Draft";
-
-        //        if (isSubmit)
-        //        {
-        //            FormModel.Agreement.SubmittedDate = DateTime.UtcNow;
-        //        }
-
-        //        _context.Agreements.Add(FormModel.Agreement);
-        //        await _context.SaveChangesAsync();
-
-        //        await _agreementService.SaveOrUpdateAnswersFromFormAsync(questionnaireId, FormModel.Agreement, Request.Form, FormModel.Questionnaire);
-
-        //        if (isSubmit)
-        //        {
-        //            return RedirectToPage("/Agreement/Detail", new { questionnaireId, agreementId = FormModel.Agreement.AgreementID });
-        //        }
-        //        else
-        //        {
-        //            StatusMessage = "Draft saved successfully.";
-        //            return RedirectToPage("/Agreement/Edit", new { questionnaireId, agreementId = FormModel.Agreement.AgreementID });
-        //        } 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, $"Error saving agreement. {ex.Message}",
-        //            Agreement.AgreementID,
-        //            User.Identity?.Name ?? "Anonymous",
-        //            DateTime.UtcNow);
-
-        //        ModelState.AddModelError("", "Unable to save agreement. See logs for details.");
-        //        return Page();
-        //    }
-        //}
-
         public async Task<IActionResult> OnPostAsync(int questionnaireId)
         {
             var isSubmit = ActionType == "Submit";
@@ -183,24 +107,34 @@ namespace CustomerAgreements.Pages.Agreements
 
             try
             {
-                // 1) Try API first
-                var apiResult = await TrySaveViaApiAsync(questionnaireId, isSubmit);
-
-                if (apiResult != null)
+                if (_flags.UseApiForAgreementSave)
                 {
-                    // Redirect using API-created AgreementId
-                    if (isSubmit)
+                    // 1) Try API first
+                    var apiResult = await TrySaveViaApiAsync(questionnaireId, isSubmit);
+
+                    if (apiResult != null)
                     {
-                        return RedirectToPage("/Agreement/Detail",
+                        // Redirect using API-created AgreementId
+                        if (isSubmit)
+                        {
+                            return RedirectToPage("/Agreement/Detail",
+                                new { questionnaireId, agreementId = apiResult.AgreementId });
+                        }
+
+                        StatusMessage = "Draft saved successfully.";
+                        return RedirectToPage("/Agreement/Edit",
                             new { questionnaireId, agreementId = apiResult.AgreementId });
                     }
 
-                    StatusMessage = "Draft saved successfully.";
-                    return RedirectToPage("/Agreement/Edit",
-                        new { questionnaireId, agreementId = apiResult.AgreementId });
+                    // API failed but didn't throw - only fallback if allowed
+                    if (!_flags.AllowDbFallback)
+                    {
+                        ModelState.AddModelError("", "Unable to save at this time. Please try again.");
+                        return Page();
+                    }
                 }
 
-                // 2) If API fails for any reason, fall back to your existing DB logic
+                // Either API is off OR fallback allowed and needed
                 return await SaveViaDbFallbackAsync(questionnaireId, isSubmit);
             }
             catch (Exception ex)
@@ -225,7 +159,12 @@ namespace CustomerAgreements.Pages.Agreements
                 if (!response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    _logger.LogWarning($"API save failed. Status={isSubmit}. Body={body}", (int)response.StatusCode, body);
+                    _logger.LogWarning(
+                        "API save failed. HttpStatus={HttpStatus}. ActionType={ActionType}. Body={Body}",
+                        (int)response.StatusCode,
+                        isSubmit ? "Submit" : "Draft",
+                        body);
+
                     return null;
                 }
 
@@ -403,16 +342,23 @@ namespace CustomerAgreements.Pages.Agreements
 
         private async Task LoadQuestionnaireAsync(int questionnaireId)
         {
-            try
+            if (_flags.UseApiForAgreementLoad)
             {
-                await LoadQuestionnaireFromApiAsync(questionnaireId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "API load failed; falling back to DB load for questionnaireId {QuestionnaireId}", questionnaireId);
+                try
+                {
+                    await LoadQuestionnaireFromApiAsync(questionnaireId);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "API load failed for questionnaireId {QuestionnaireId}", questionnaireId);
 
-                await LoadQuestionnaireFromDbAsync(questionnaireId);
+                    if (!_flags.AllowDbFallback)
+                        throw; // or show friendly error, your choice
+                }
             }
+
+            await LoadQuestionnaireFromDbAsync(questionnaireId);
         }
 
         private async Task LoadQuestionnaireFromDbAsync(int questionnaireId)
@@ -436,9 +382,10 @@ namespace CustomerAgreements.Pages.Agreements
             .FirstOrDefaultAsync();
 
             Acknowledgement = acknowledgement?.Text ?? "No acknowledgement available.";
-
-            _logger.LogInformation($"Loaded questionnaire {questionnaireId} via DB fallback.", questionnaireId);
-
+                        
+            _logger.LogInformation(
+                "Loaded questionnaire {QuestionnaireId} via DB fallback.",
+                questionnaireId);
         }
 
         private async Task LoadQuestionnaireFromApiAsync(int questionnaireId)
@@ -452,7 +399,6 @@ namespace CustomerAgreements.Pages.Agreements
 
             if (payload == null)
             {
-                throw new InvalidOperationException("API returned success but payload was null.");
                 FormModel.Questionnaire = new Questionnaire();
                 Instructions = "No instructions available.";
                 Acknowledgement = "No acknowledgement available.";
@@ -529,7 +475,11 @@ namespace CustomerAgreements.Pages.Agreements
                     .ToList()
             };
 
-            _logger.LogInformation($"Loaded questionnaire {questionnaireId} via API.", questionnaireId);
+            _logger.LogInformation(
+                "Loaded questionnaire {QuestionnaireId} via API.",
+                questionnaireId);
+
+
 
         }
 
