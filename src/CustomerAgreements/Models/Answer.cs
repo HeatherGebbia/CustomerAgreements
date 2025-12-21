@@ -16,10 +16,9 @@ namespace CustomerAgreements.Models
         public int QuestionID { get; set; }
         public int? QuestionListID { get; set; }        
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(8000)]
         [Column("Answer")] // Keeps mapping to DB column named "Question"
-        public string Text { get; set; } = string.Empty;
+        public string? Text { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:MM-dd-yyyy}", ApplyFormatInEditMode = true)]
         [Column(TypeName = "datetime2")]

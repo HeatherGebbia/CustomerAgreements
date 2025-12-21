@@ -16,12 +16,11 @@ namespace CustomerAgreements.Models
         public int QuestionID { get; set; }
         public int QuestionListID { get; set; }
         public int DependentQuestionID { get; set; }
-        public int DependentQuestionListID { get; set; }
+        public int? DependentQuestionListID { get; set; }
         public int AnswerID { get; set; }
 
-        [Required(ErrorMessage = "Required")]
         [MaxLength(4000)]
-        public string Answer { get; set; } = string.Empty;
+        public string? Answer { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:MM-dd-yyyy}", ApplyFormatInEditMode = true)]
         [Column(TypeName = "datetime2")]
